@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="footer-brand">
             <Link to="/" className="footer-logo">
               <Globe className="logo-icon" />
-              <span>Geospatial Club</span>
+              <span>Geospatial Computing Research Vertical</span>
             </Link>
             <p className="footer-tagline">Explore • Analyze • Innovate</p>
             <p className="footer-desc">SRM Institute of Science and Technology</p>
@@ -31,7 +31,7 @@ const Footer = () => {
             <h3>Contact Us</h3>
             <ul>
               <li><MapPin size={18} /> SRMIST, Kattankulathur, Chennai</li>
-              <li><Mail size={18} /> contact@geospatialclub.srm</li>
+              <li><Mail size={18} /> geospatial.vertical@srmist.edu.in</li>
             </ul>
             <div className="social-links">
               <a href="#" aria-label="LinkedIn">IN</a>
@@ -42,7 +42,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Geospatial Club. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Geospatial Computing Research Vertical. All rights reserved.</p>
         </div>
       </div>
     </footer>

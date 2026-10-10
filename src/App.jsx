@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Events from './pages/Events';
 import Projects from './pages/Projects';
+import Admin from './pages/Admin';
+import { DataProvider } from './context/DataContext';
 import './index.css';
 
 const ScrollToTop = () => {
@@ -18,23 +20,35 @@ const ScrollToTop = () => {
   return null;
 };
 
+const Layout = () => {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith('/admin');
+
+  return (
+    <div className="app-container">
+      {!isAdmin && <Navbar />}
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/admin" element={<Admin />} />
+        </Routes>
+      </main>
+      {!isAdmin && <Footer />}
+    </div>
+  );
+};
+
 const App = () => {
   return (
-    <Router>
-      <ScrollToTop />
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/projects" element={<Projects />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <DataProvider>
+      <Router>
+        <ScrollToTop />
+        <Layout />
+      </Router>
+    </DataProvider>
   );
 };
 

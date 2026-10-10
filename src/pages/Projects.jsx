@@ -3,9 +3,10 @@ import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
 import { ProjectCard } from '../components/Cards';
 import ProjectModal from '../components/ProjectModal';
-import { projects } from '../data/projects';
+import { useData } from '../context/DataContext';
 
 const Projects = () => {
+  const { projects } = useData();
   const [selectedProject, setSelectedProject] = useState(null);
 
   return (
@@ -19,11 +20,17 @@ const Projects = () => {
       <section className="section bg-light">
         <div className="container">
           <SectionHeader title="Our Initiatives" subtitle="Exploring solutions through spatial data and technology." />
-          <div className="grid grid-3">
-            {projects.map(project => (
-              <ProjectCard key={project.id} project={project} onClick={setSelectedProject} />
-            ))}
-          </div>
+          {projects.length > 0 ? (
+            <div className="grid grid-3">
+              {projects.map(project => (
+                <ProjectCard key={project.id} project={project} onClick={setSelectedProject} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-light" style={{ fontSize: '1.1rem', padding: '2rem 0' }}>
+              No projects added yet. Visit the Admin portal to create one!
+            </p>
+          )}
         </div>
       </section>
 

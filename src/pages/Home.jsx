@@ -4,12 +4,11 @@ import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
 import { FeatureCard, StatCard, EventCard, ProjectCard } from '../components/Cards';
 import CTASection from '../components/CTASection';
-import { clubInfo } from '../data/club';
-import { upcomingEvents } from '../data/events';
-import { projects } from '../data/projects';
 import ProjectModal from '../components/ProjectModal';
+import { useData } from '../context/DataContext';
 
 const Home = () => {
+  const { clubInfo, upcomingEvents, projects } = useData();
   const [selectedProject, setSelectedProject] = useState(null);
 
   return (

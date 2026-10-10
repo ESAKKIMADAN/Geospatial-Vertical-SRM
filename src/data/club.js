@@ -1,18 +1,18 @@
 export const clubInfo = {
-  name: "Geospatial Club",
+  name: "Geospatial Computing Research Vertical",
   institution: "SRM Institute of Science and Technology",
   tagline: "Explore • Analyze • Innovate",
-  heroDescription: "The Geospatial Club brings together students passionate about Geographic Information Systems, Remote Sensing, GeoAI, mapping, and spatial data science to explore real-world challenges through technology and innovation.",
-  aboutDescription: "The Geospatial Club is a student-driven academic community focused on exploring technologies that help us understand and analyze the world through location-based information. The club encourages students to learn, collaborate, experiment and develop innovative solutions using modern geospatial technologies.",
-  vision: "To foster a community of students who use geospatial technologies to understand the world, solve real-world problems, and create meaningful technological solutions.",
-  mission: "To create an active learning environment where students can develop practical geospatial skills, collaborate on interdisciplinary projects, participate in technical activities, and apply geospatial technologies to real-world challenges.",
+  heroDescription: "The Geospatial Computing Research Vertical brings together students and researchers passionate about Geographic Information Systems, Remote Sensing, GeoAI, mapping, and spatial data science to explore real-world challenges through technology and innovation.",
+  aboutDescription: "The Geospatial Computing Research Vertical is a research-driven academic initiative focused on exploring technologies that help us understand and analyze the world through location-based information. The vertical encourages students and scholars to learn, collaborate, experiment and develop innovative solutions using modern geospatial technologies.",
+  vision: "To foster a leading research vertical of scholars and students who leverage geospatial computing technologies to understand the world, solve complex real-world challenges, and create meaningful technological breakthroughs.",
+  mission: "To create an active research and learning environment where members develop advanced geospatial computing skills, collaborate on interdisciplinary research projects, participate in technical activities, and apply spatial data science to real-world challenges.",
   objectives: [
-    "Encourage practical learning in geospatial technologies",
-    "Promote interdisciplinary collaboration",
-    "Conduct workshops, talks and technical activities",
-    "Develop student-led geospatial projects",
-    "Encourage research and innovation",
-    "Connect students with emerging geospatial technologies"
+    "Advance research and practical skills in geospatial computing technologies",
+    "Promote interdisciplinary research collaboration across departments",
+    "Conduct workshops, seminars, and specialized technical sessions",
+    "Develop student and faculty-led geospatial research projects",
+    "Drive publications, patents, and geospatial innovation",
+    "Connect researchers with emerging GeoAI and Earth observation technologies"
   ],
   stats: [
     { label: "Student Members", value: "25+" },
