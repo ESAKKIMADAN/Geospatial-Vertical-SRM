@@ -552,7 +552,7 @@
 }
 
 .srm-btn-excel {
-  background-color: var(--srm-blue);
+  background-color: #107c41; /* Microsoft Excel Green */
   color: #ffffff;
   border: none;
   font-weight: 600;
@@ -564,12 +564,67 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.88rem;
-  box-shadow: 0 1px 3px rgba(32, 84, 147, 0.25);
+  box-shadow: 0 1px 3px rgba(16, 124, 65, 0.3);
 }
 
-.srm-btn-excel:hover {
-  background-color: var(--srm-navy);
-  box-shadow: 0 2px 6px rgba(32, 84, 147, 0.35);
+.srm-btn-excel:hover:not(:disabled) {
+  background-color: #0b5a2f;
+  box-shadow: 0 2px 6px rgba(16, 124, 65, 0.4);
+  transform: translateY(-1px);
+}
+
+.srm-btn-excel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.srm-btn-excel-sm {
+  background-color: #107c41;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(16, 124, 65, 0.25);
+}
+
+.srm-btn-excel-sm:hover:not(:disabled) {
+  background-color: #0b5a2f;
+  transform: translateY(-1px);
+}
+
+.srm-btn-excel-sm:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.srm-btn-outline-sm {
+  background-color: #ffffff;
+  color: #1a569d;
+  border: 1px solid #bfdbfe;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.srm-btn-outline-sm:hover {
+  background-color: #eff6ff;
+  border-color: #1a569d;
 }
 
 .srm-btn-outline {
@@ -590,6 +645,165 @@
 .srm-btn-outline:hover {
   background-color: #f1f5f9;
   color: var(--srm-navy);
+}
+
+/* Event Roster Cards Grid for Registrations Tab */
+.event-roster-section {
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  border: 1px solid var(--srm-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.event-roster-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.event-roster-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--srm-navy);
+  margin: 0;
+}
+
+.event-roster-section-desc {
+  font-size: 0.83rem;
+  color: var(--srm-text-muted);
+  margin: 0.2rem 0 0 0;
+}
+
+.event-roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1rem;
+}
+
+.event-roster-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.event-roster-card:hover {
+  border-color: #1a569d;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(26, 86, 157, 0.1);
+  transform: translateY(-2px);
+}
+
+.event-roster-card.active-filter {
+  border-color: #1a569d;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(26, 86, 157, 0.25);
+}
+
+.event-roster-card.all-events-card {
+  background: linear-gradient(135deg, #002b66 0%, #1a569d 100%);
+  color: #ffffff;
+  border-color: #002b66;
+}
+
+.event-roster-card.all-events-card .event-roster-card-title {
+  color: #ffffff;
+}
+
+.event-roster-card.all-events-card .event-roster-card-meta {
+  color: #cbd5e1;
+}
+
+.event-roster-card.all-events-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 43, 102, 0.3);
+}
+
+.event-roster-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.event-roster-card-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--srm-navy);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.event-roster-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 0.85rem;
+}
+
+.event-roster-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.event-roster-count-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0.85rem;
+}
+
+.all-events-card .event-roster-count-strip {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.event-roster-count-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a569d;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.all-events-card .event-roster-count-text {
+  color: #ffffff;
+}
+
+.event-roster-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.event-roster-card-actions button {
+  flex: 1;
+  justify-content: center;
+}
+
+.admin-modal-box.wide {
+  max-width: 1000px;
 }
 
 /* Card Grids for Events, Projects, Faculty */

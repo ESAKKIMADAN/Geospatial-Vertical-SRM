@@ -65,6 +65,10 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Event Roster Inspection Modal State
+  const [rosterModalEvent, setRosterModalEvent] = useState(null);
+  const [rosterSearchQuery, setRosterSearchQuery] = useState('');
+
   // Modal States
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -852,64 +856,62 @@ const Admin = () => {
                     <p className="item-desc">{evt.description}</p>
 
                     {/* Registration Status & Attendee Count */}
-                    {evt.isUpcoming && (
-                      <div style={{
-                        marginTop: '0.5rem',
-                        marginBottom: '0.65rem',
-                        padding: '0.55rem 0.75rem',
-                        background: '#f8fafc',
-                        borderRadius: '6px',
-                        border: '1px solid #e2e8f0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: '0.4rem'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                          <span style={{
-                            fontSize: '0.74rem',
-                            fontWeight: 700,
-                            padding: '0.15rem 0.5rem',
-                            borderRadius: '10px',
-                            background: '#eff6ff',
-                            color: '#1c4482',
-                            border: '1px solid #bfdbfe'
-                          }}>
-                            {evt.registrationType === 'link' ? 'External Link' : 'On-Site Form'}
-                          </span>
-                          <span style={{ fontSize: '0.8rem', color: '#1c4482', fontWeight: 600 }}>
-                            {registrations.filter(r => r.eventId === evt.id).length} Registered
-                          </span>
-                        </div>
-
-                        {evt.registrationType !== 'link' && (
-                          <div style={{ display: 'flex', gap: '0.35rem' }}>
-                            <button
-                              type="button"
-                              onClick={() => exportRegistrationsExcel(evt.id)}
-                              className="srm-btn-primary"
-                              style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem' }}
-                              title="Download registered students Excel sheet (.xlsx) for this event"
-                            >
-                              <Download size={12} /> Excel
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedRegEventFilter(evt.id);
-                                setActiveTab('registrations');
-                              }}
-                              className="srm-btn-outline"
-                              style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem' }}
-                              title="View registered attendees"
-                            >
-                              <Eye size={12} /> View
-                            </button>
-                          </div>
-                        )}
+                    <div style={{
+                      marginTop: '0.5rem',
+                      marginBottom: '0.65rem',
+                      padding: '0.55rem 0.75rem',
+                      background: '#f8fafc',
+                      borderRadius: '6px',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: '0.4rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        <span style={{
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          padding: '0.15rem 0.5rem',
+                          borderRadius: '10px',
+                          background: '#eff6ff',
+                          color: '#1c4482',
+                          border: '1px solid #bfdbfe'
+                        }}>
+                          {evt.registrationType === 'link' ? 'External Link' : 'On-Site Form'}
+                        </span>
+                        <span style={{ fontSize: '0.8rem', color: '#1c4482', fontWeight: 600 }}>
+                          {registrations.filter(r => r.eventId === evt.id).length} Registered
+                        </span>
                       </div>
-                    )}
+
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            exportRegistrationsExcel(evt.id);
+                            showToast(`Excel downloaded for ${evt.title}`);
+                          }}
+                          className="srm-btn-excel-sm"
+                          disabled={registrations.filter(r => r.eventId === evt.id).length === 0}
+                          title="Download registered students Excel sheet (.xlsx) for this event"
+                        >
+                          <FileSpreadsheet size={13} /> Excel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRosterModalEvent(evt);
+                            setRosterSearchQuery('');
+                          }}
+                          className="srm-btn-outline-sm"
+                          title="Go inside event to view registered students"
+                        >
+                          <Users size={13} /> Roster ({registrations.filter(r => r.eventId === evt.id).length})
+                        </button>
+                      </div>
+                    </div>
 
                     <div className="item-actions">
                       <button 
@@ -969,6 +971,166 @@ const Admin = () => {
           </div>
 
           <div className="srm-card-body">
+            {/* Event Cards Grid for Direct Roster Inspection & Excel Download */}
+            <div className="event-roster-section">
+              <div className="event-roster-section-header">
+                <div>
+                  <h3 className="event-roster-section-title">
+                    <Calendar size={18} color="#002b66" />
+                    Event Rosters & Excel Exports
+                  </h3>
+                  <p className="event-roster-section-desc">
+                    Click any event card below to go inside, view registered students, or download its Excel (.xlsx) roster.
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="srm-btn-excel"
+                    onClick={() => {
+                      exportRegistrationsExcel(null);
+                      showToast('Complete Master Excel roster downloaded successfully!');
+                    }}
+                    disabled={registrations.length === 0}
+                    title="Download complete roster of all events combined as Excel"
+                  >
+                    <FileSpreadsheet size={16} /> Download All Registrations ({registrations.length})
+                  </button>
+                </div>
+              </div>
+
+              <div className="event-roster-grid">
+                {/* Master All Events Card */}
+                <div 
+                  className={`event-roster-card all-events-card ${selectedRegEventFilter === 'all' ? 'active-filter' : ''}`}
+                  onClick={() => setSelectedRegEventFilter('all')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="event-roster-card-header">
+                    <div>
+                      <h4 className="event-roster-card-title">All Events Master Roster</h4>
+                      <div className="event-roster-card-meta">
+                        <span>All {upcomingEvents.length + pastEvents.length} department events combined</span>
+                      </div>
+                    </div>
+                    <span className="status-badge-chip ongoing" style={{ position: 'static' }}>All Events</span>
+                  </div>
+
+                  <div className="event-roster-count-strip">
+                    <span className="event-roster-count-text">
+                      <Users size={14} /> Total Attendees:
+                    </span>
+                    <strong style={{ fontSize: '0.95rem' }}>{registrations.length} Students</strong>
+                  </div>
+
+                  <div className="event-roster-card-actions">
+                    <button
+                      type="button"
+                      className="srm-btn-excel-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        exportRegistrationsExcel(null);
+                        showToast('Complete Master Excel roster downloaded successfully!');
+                      }}
+                      disabled={registrations.length === 0}
+                      title="Download Master Excel (.xlsx)"
+                    >
+                      <FileSpreadsheet size={13} /> Download Excel
+                    </button>
+                    <button
+                      type="button"
+                      className="srm-btn-outline-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedRegEventFilter('all');
+                      }}
+                      style={{ background: 'rgba(255,255,255,0.18)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.35)' }}
+                      title="View all in table below"
+                    >
+                      <Eye size={13} /> View in Table
+                    </button>
+                  </div>
+                </div>
+
+                {/* Individual Event Cards */}
+                {[...upcomingEvents.map(e => ({ ...e, isUpcoming: true })), ...pastEvents.map(e => ({ ...e, isUpcoming: false }))].map(evt => {
+                  const evtRegs = registrations.filter(r => r.eventId === evt.id);
+                  const isSelected = selectedRegEventFilter === evt.id;
+
+                  return (
+                    <div 
+                      key={evt.id} 
+                      className={`event-roster-card ${isSelected ? 'active-filter' : ''}`}
+                      onClick={() => setSelectedRegEventFilter(evt.id)}
+                      title="Click to view inside table or click buttons below"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="event-roster-card-header">
+                        <div style={{ flex: 1, paddingRight: '0.4rem' }}>
+                          <h4 className="event-roster-card-title">{evt.title}</h4>
+                          <div className="event-roster-card-meta">
+                            {evt.date && (
+                              <span className="event-roster-card-meta-item">
+                                <Calendar size={13} color="#1a569d" /> {evt.date}
+                              </span>
+                            )}
+                            {evt.venue && (
+                              <span className="event-roster-card-meta-item">
+                                <MapPin size={13} color="#1a569d" /> {evt.venue}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <span 
+                          className={`status-badge-chip ${evt.isUpcoming ? 'upcoming' : 'done'}`}
+                          style={{ position: 'static', flexShrink: 0 }}
+                        >
+                          {evt.isUpcoming ? 'Upcoming' : 'Past'}
+                        </span>
+                      </div>
+
+                      <div className="event-roster-count-strip">
+                        <span className="event-roster-count-text">
+                          <Users size={14} /> Registered:
+                        </span>
+                        <strong style={{ color: '#1c4482', fontSize: '0.92rem' }}>
+                          {evtRegs.length} {evtRegs.length === 1 ? 'Student' : 'Students'}
+                        </strong>
+                      </div>
+
+                      <div className="event-roster-card-actions">
+                        <button
+                          type="button"
+                          className="srm-btn-excel-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            exportRegistrationsExcel(evt.id);
+                            showToast(`Excel downloaded for ${evt.title}`);
+                          }}
+                          disabled={evtRegs.length === 0}
+                          title={`Download Excel (.xlsx) with ${evtRegs.length} students`}
+                        >
+                          <FileSpreadsheet size={13} /> Download Excel
+                        </button>
+                        <button
+                          type="button"
+                          className="srm-btn-outline-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRosterModalEvent(evt);
+                            setRosterSearchQuery('');
+                          }}
+                          title="Open roster modal inside to view and download"
+                        >
+                          <Eye size={13} /> Open Roster ({evtRegs.length})
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="srm-toolbar">
               <div className="toolbar-left">
                 <div className="srm-search-input-wrap">
@@ -1013,6 +1175,25 @@ const Admin = () => {
                     Clear Filter ✕
                   </button>
                 )}
+              </div>
+
+              <div className="toolbar-right">
+                <button
+                  type="button"
+                  className="srm-btn-excel"
+                  onClick={() => {
+                    exportRegistrationsExcel(selectedRegEventFilter === 'all' ? null : selectedRegEventFilter);
+                    showToast('Excel sheet downloaded successfully!');
+                  }}
+                  disabled={filteredRegistrations.length === 0}
+                  style={{ opacity: filteredRegistrations.length === 0 ? 0.6 : 1 }}
+                  title="Download registrations as Microsoft Excel (.xlsx)"
+                >
+                  <FileSpreadsheet size={16} />
+                  {selectedRegEventFilter === 'all' 
+                    ? `Download All Excel (${filteredRegistrations.length})` 
+                    : `Download Event Excel (${filteredRegistrations.length})`}
+                </button>
               </div>
             </div>
 
@@ -2177,6 +2358,208 @@ const Admin = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= EVENT ROSTER INSPECTION MODAL ================= */}
+      {rosterModalEvent && (
+        <div className="admin-modal-overlay" onClick={() => setRosterModalEvent(null)}>
+          <div className="admin-modal-box wide" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header" style={{ background: '#002b66' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <ClipboardList size={22} color="#38bdf8" />
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem' }}>
+                    {rosterModalEvent.title} — Attendee Roster
+                  </h3>
+                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '0.2rem', display: 'flex', gap: '0.9rem', flexWrap: 'wrap' }}>
+                    {rosterModalEvent.date && <span>📅 {rosterModalEvent.date}</span>}
+                    {rosterModalEvent.time && <span>⏰ {rosterModalEvent.time}</span>}
+                    {rosterModalEvent.venue && <span>📍 {rosterModalEvent.venue}</span>}
+                    <span style={{ fontWeight: 700, color: '#38bdf8' }}>
+                      👥 {registrations.filter(r => r.eventId === rosterModalEvent.id).length} Registered
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button 
+                type="button" 
+                className="btn-close-modal" 
+                onClick={() => setRosterModalEvent(null)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="admin-modal-body" style={{ padding: '1.25rem' }}>
+              {/* Modal Top Bar: Prominent Excel Download Button + Live Search */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+                marginBottom: '1.25rem',
+                padding: '0.85rem 1rem',
+                background: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <button
+                  type="button"
+                  className="srm-btn-excel"
+                  onClick={() => {
+                    exportRegistrationsExcel(rosterModalEvent.id);
+                    showToast(`Excel roster downloaded for ${rosterModalEvent.title}`);
+                  }}
+                  disabled={registrations.filter(r => r.eventId === rosterModalEvent.id).length === 0}
+                  style={{
+                    fontSize: '0.92rem',
+                    padding: '0.6rem 1.25rem'
+                  }}
+                >
+                  <FileSpreadsheet size={18} /> Download Excel (.xlsx) Roster
+                </button>
+
+                <div className="srm-search-input-wrap" style={{ minWidth: '260px' }}>
+                  <Search size={15} />
+                  <input
+                    type="text"
+                    placeholder="Search students in this event..."
+                    value={rosterSearchQuery}
+                    onChange={(e) => setRosterSearchQuery(e.target.value)}
+                  />
+                  {rosterSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setRosterSearchQuery('')}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Roster Table */}
+              {(() => {
+                const eventRegs = registrations.filter(r => r.eventId === rosterModalEvent.id);
+                const displayedRegs = eventRegs.filter(r => {
+                  if (!rosterSearchQuery.trim()) return true;
+                  const q = rosterSearchQuery.toLowerCase();
+                  return (
+                    r.name?.toLowerCase().includes(q) ||
+                    r.registerNumber?.toLowerCase().includes(q) ||
+                    r.email?.toLowerCase().includes(q) ||
+                    r.department?.toLowerCase().includes(q)
+                  );
+                });
+
+                if (eventRegs.length === 0) {
+                  return (
+                    <div style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
+                      <Users size={48} color="#94a3b8" style={{ margin: '0 auto 1rem' }} />
+                      <h4 style={{ color: '#334155', margin: '0 0 0.5rem', fontSize: '1.1rem' }}>
+                        No Registered Students Yet
+                      </h4>
+                      <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '480px', margin: '0 auto' }}>
+                        Students who register for <strong>{rosterModalEvent.title}</strong> will automatically appear here with their SRMIST email and register number verified.
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="admin-table-container">
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '45px' }}>#</th>
+                          <th>Reg ID</th>
+                          <th>Student Name</th>
+                          <th>Register Number</th>
+                          <th>SRMIST Email</th>
+                          <th>Department & Year</th>
+                          <th>Phone / WhatsApp</th>
+                          <th>Registered At</th>
+                          <th style={{ textAlign: 'center' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {displayedRegs.map((reg, index) => (
+                          <tr key={reg.id}>
+                            <td style={{ color: '#94a3b8', fontWeight: 600 }}>{index + 1}</td>
+                            <td>
+                              <span className="badge-reg-id">{reg.id}</span>
+                            </td>
+                            <td style={{ fontWeight: 600, color: '#1e293b' }}>
+                              {reg.name || reg.fullName}
+                            </td>
+                            <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
+                              {reg.registerNumber || reg.regNumber}
+                            </td>
+                            <td>
+                              <span className="badge-srm-email">
+                                <Check size={12} /> {reg.email}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ fontSize: '0.85rem' }}>{reg.department || 'N/A'}</div>
+                              <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{reg.year ? `Year ${reg.year}` : ''}</div>
+                            </td>
+                            <td style={{ fontSize: '0.85rem', color: '#475569' }}>
+                              {reg.phone || 'N/A'}
+                            </td>
+                            <td style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                              {reg.registeredAt || 'N/A'}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <button
+                                type="button"
+                                className="btn-icon-action delete"
+                                onClick={() => {
+                                  if (window.confirm(`Delete registration for "${reg.name || reg.fullName}" (${reg.id})?`)) {
+                                    deleteRegistration(reg.id);
+                                    showToast(`Registration ${reg.id} deleted.`);
+                                  }
+                                }}
+                                title="Delete Registration"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="admin-modal-footer">
+              <button 
+                type="button" 
+                className="admin-btn admin-btn-outline-light" 
+                style={{ color: '#475569', borderColor: '#cbd5e1' }} 
+                onClick={() => setRosterModalEvent(null)}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="srm-btn-excel"
+                onClick={() => {
+                  exportRegistrationsExcel(rosterModalEvent.id);
+                  showToast(`Excel downloaded for ${rosterModalEvent.title}`);
+                }}
+                disabled={registrations.filter(r => r.eventId === rosterModalEvent.id).length === 0}
+              >
+                <FileSpreadsheet size={16} /> Download Excel (.xlsx)
+              </button>
+            </div>
           </div>
         </div>
       )}
