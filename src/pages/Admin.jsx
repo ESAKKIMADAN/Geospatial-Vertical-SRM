@@ -65,38 +65,6 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Live Portal Clock (Format matches reference screenshot: Sun 11-Oct-2026 09:36:32)
-  const [currentTime, setCurrentTime] = useState(() => {
-    const d = new Date();
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const day = days[d.getDay()];
-    const date = String(d.getDate()).padStart(2, '0');
-    const month = months[d.getMonth()];
-    const year = d.getFullYear();
-    const hours = String(d.getHours()).padStart(2, '0');
-    const mins = String(d.getMinutes()).padStart(2, '0');
-    const secs = String(d.getSeconds()).padStart(2, '0');
-    return `${day} ${date}-${month}-${year} ${hours}:${mins}:${secs}`;
-  });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const d = new Date();
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const day = days[d.getDay()];
-      const date = String(d.getDate()).padStart(2, '0');
-      const month = months[d.getMonth()];
-      const year = d.getFullYear();
-      const hours = String(d.getHours()).padStart(2, '0');
-      const mins = String(d.getMinutes()).padStart(2, '0');
-      const secs = String(d.getSeconds()).padStart(2, '0');
-      setCurrentTime(`${day} ${date}-${month}-${year} ${hours}:${mins}:${secs}`);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   // Modal States
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -738,13 +706,6 @@ const Admin = () => {
               <span className="srm-nav-text">Vertical Settings</span>
             </button>
           </nav>
-
-          {/* User Info Bottom Card (Matches screenshot layout: RA2411003010387 / ESAKKIMADAN M / Live Clock) */}
-          <div className="srm-user-info-card">
-            <div className="srm-user-regno">RA2411003010387</div>
-            <div className="srm-user-name">ESAKKIMADAN M</div>
-            <div className="srm-user-timestamp">{currentTime}</div>
-          </div>
         </aside>
 
         {/* Main Content Area */}

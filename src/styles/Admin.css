@@ -198,8 +198,7 @@
 }
 
 .srm-sidebar.collapsed .srm-nav-text,
-.srm-sidebar.collapsed .srm-pill-badge,
-.srm-sidebar.collapsed .srm-user-info-card {
+.srm-sidebar.collapsed .srm-pill-badge {
   display: none;
 }
 
@@ -274,42 +273,6 @@
 .srm-pill-badge.alert {
   background-color: #ef4444;
   color: #ffffff;
-}
-
-/* User Info Card in Sidebar (matches reference screenshot bottom-left) */
-.srm-user-info-card {
-  background-color: #eef2f6;
-  border-radius: 6px;
-  padding: 0.85rem 1rem;
-  margin: 1rem 0.85rem 1.25rem;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  border: 1px solid #d8e2ec;
-}
-
-.srm-user-regno {
-  font-weight: 700;
-  color: #334155;
-  font-family: monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
-}
-
-.srm-user-name {
-  font-weight: 700;
-  color: #1e293b;
-  text-transform: uppercase;
-  font-size: 0.84rem;
-  margin-top: 0.15rem;
-}
-
-.srm-user-timestamp {
-  color: #64748b;
-  font-size: 0.74rem;
-  margin-top: 0.35rem;
-  font-family: monospace;
-  border-top: 1px dashed #cbd5e1;
-  padding-top: 0.35rem;
 }
 
 /* Main Viewport */
