@@ -510,8 +510,8 @@ const Admin = () => {
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchName = reg.fullName?.toLowerCase().includes(q);
-      const matchRegNo = reg.regNumber?.toLowerCase().includes(q);
+      const matchName = (reg.name || reg.fullName)?.toLowerCase().includes(q);
+      const matchRegNo = (reg.registerNumber || reg.regNumber)?.toLowerCase().includes(q);
       const matchEmail = reg.email?.toLowerCase().includes(q);
       const matchDept = reg.department?.toLowerCase().includes(q);
       const matchEvent = reg.eventTitle?.toLowerCase().includes(q);
@@ -1113,10 +1113,10 @@ const Admin = () => {
                         <strong style={{ color: '#1c4482', fontSize: '0.88rem' }}>{reg.eventTitle}</strong>
                       </td>
                       <td style={{ fontWeight: 600, color: '#1e293b' }}>
-                        {reg.fullName}
+                        {reg.name || reg.fullName}
                       </td>
                       <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
-                        {reg.regNumber}
+                        {reg.registerNumber || reg.regNumber}
                       </td>
                       <td>
                         <span className="badge-srm-email">
@@ -1138,7 +1138,7 @@ const Admin = () => {
                           type="button"
                           className="btn-icon-action delete"
                           onClick={() => {
-                            if (window.confirm(`Delete registration for "${reg.fullName}" (${reg.id})?`)) {
+                            if (window.confirm(`Delete registration for "${reg.name || reg.fullName}" (${reg.id})?`)) {
                               deleteRegistration(reg.id);
                               showToast(`Registration ${reg.id} deleted.`);
                             }
