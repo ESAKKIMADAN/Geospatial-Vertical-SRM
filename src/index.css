@@ -1,31 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
 
 :root {
-  /* Colors */
-  --primary: #0A192F; /* Deep Navy */
-  --primary-light: #112240;
-  --secondary: #20C997; /* Subtle Teal/Green accent */
-  --secondary-hover: #17a57a;
-  --bg-color: #F8F9FA;
-  --surface: #FFFFFF;
-  --text-main: #2D3748;
-  --text-light: #718096;
-  --border: #E2E8F0;
+  /* SRMIST Institutional Colors (Blue & White Palette Only) */
+  --primary: #002b66;        /* Official SRMIST Deep Navy */
+  --primary-light: #0d3d82;  /* Royal Navy Light */
+  --primary-dark: #001f4d;   /* Midnight Navy */
+  --secondary: #1a569d;      /* Official SRMIST Royal Blue */
+  --secondary-hover: #14457e;
+  --accent-blue: #0284c7;    /* Academic Sky Blue */
+  --accent-light: #eff6ff;   /* Soft Ice Blue Tint */
+  --bg-color: #f4f7fb;       /* Official SRMIST Academic Background */
+  --surface: #ffffff;        /* Crisp Pure White */
+  --text-main: #0f172a;      /* Clean Dark Slate */
+  --text-light: #556987;     /* Elegant Muted Slate */
+  --border: #dbe3ec;         /* Crisp Border */
 
   /* Typography */
-  --font-main: 'Inter', sans-serif;
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
 
   /* Spacing */
   --space-xs: 0.5rem;
   --space-sm: 1rem;
   --space-md: 2rem;
   --space-lg: 4rem;
-  --space-xl: 8rem;
+  --space-xl: 6rem;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 43, 102, 0.06), 0 1px 2px rgba(0, 43, 102, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 43, 102, 0.08);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 43, 102, 0.12), 0 4px 10px -2px rgba(0, 43, 102, 0.06);
   
   /* Transitions */
   --transition-fast: 0.2s ease-in-out;
@@ -68,7 +72,7 @@ ul {
 
 /* Utilities */
 .container {
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 2rem;
 }
@@ -77,13 +81,14 @@ ul {
 .text-primary { color: var(--primary); }
 .text-secondary { color: var(--secondary); }
 .text-light { color: var(--text-light); }
-.bg-light { background-color: var(--border); /* darker than bg-color for contrast */ background-color: #EDF2F7; }
+.bg-light { background-color: var(--bg-color); }
 .bg-white { background-color: var(--surface); }
 
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: var(--bg-color);
 }
 
 .main-content {
@@ -91,21 +96,40 @@ ul {
 }
 
 .section {
-  padding: var(--space-xl) 0;
+  padding: 5rem 0;
+}
+
+.section-header {
+  margin-bottom: 3rem;
 }
 
 .section-title {
-  font-size: 2.5rem;
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
   font-weight: 700;
   color: var(--primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.section-title-underline {
+  width: 52px;
+  height: 3px;
+  background-color: var(--secondary);
+  border-radius: 2px;
+  margin: 0.65rem auto 1rem auto;
+}
+
+.section-header:not(.text-center) .section-title-underline {
+  margin-left: 0;
 }
 
 .section-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text-light);
-  max-width: 600px;
-  margin: 0 auto var(--space-lg);
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 .grid {
@@ -113,29 +137,32 @@ ul {
   gap: 2rem;
 }
 
-.grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-.grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.6rem;
   font-weight: 600;
-  border-radius: 4px;
+  font-size: 0.95rem;
+  border-radius: 6px;
   transition: all var(--transition-fast);
   gap: 0.5rem;
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background-color: var(--secondary);
   color: white;
+  border: 1px solid var(--secondary);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-light);
+  background-color: var(--primary);
+  border-color: var(--primary);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -153,12 +180,12 @@ ul {
 }
 
 .btn-secondary {
-  background-color: var(--secondary);
+  background-color: var(--primary);
   color: white;
 }
 
 .btn-secondary:hover {
-  background-color: var(--secondary-hover);
+  background-color: var(--primary-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -174,7 +201,7 @@ ul {
 }
 
 @media (max-width: 768px) {
-  .section { padding: var(--space-lg) 0; }
+  .section { padding: 3.5rem 0; }
   .section-title { font-size: 2rem; }
-  .container { padding: 0 1rem; }
+  .container { padding: 0 1.25rem; }
 }

@@ -1,0 +1,72 @@
+/* Home Page 3D Earth Space Experience Styles */
+.home-page-container {
+  position: relative;
+  min-height: 100vh;
+  color: #f8fafc;
+}
+
+/* Sections on Home page allow space background to show through */
+.home-page-container .section {
+  position: relative;
+  z-index: 1;
+}
+
+.home-page-container .section.bg-light {
+  background: transparent !important;
+}
+
+.home-page-container .section-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.home-page-container .section-subtitle {
+  color: #cbd5e1 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Preserve cards as clean, high-contrast, fully readable surfaces */
+.home-page-container .card {
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.home-page-container .feature-card {
+  background: #ffffff;
+  border-top: 4px solid var(--secondary);
+}
+
+.home-page-container .card-title {
+  color: var(--primary) !important;
+}
+
+.home-page-container .card-text {
+  color: var(--text-light) !important;
+}
+
+/* Stats Section on Home Page */
+.home-page-container .home-stats-section {
+  background: rgba(0, 43, 102, 0.45) !important;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.home-page-container .stat-card {
+  background: rgba(2, 6, 23, 0.75);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  backdrop-filter: blur(6px);
+}
+
+/* Vision quote */
+.home-page-container .home-vision-text {
+  color: #e2e8f0 !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* CTA Section and Footer Integration */
+.home-page-container .cta-section {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0 !important;
+}

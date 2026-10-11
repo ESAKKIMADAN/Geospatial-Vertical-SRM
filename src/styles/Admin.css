@@ -1,16 +1,15 @@
-/* SRM Portal UI & Color Theme (Reference: sp.srmist.edu.in) */
+/* SRM Institutional Portal UI & Color Theme (Reference: srmist.edu.in) */
 
 :root {
-  --srm-blue: #205493;
-  --srm-navy: #1c4482;
-  --srm-dark: #153465;
-  --srm-accent: #2563eb;
-  --srm-light-blue: #e8f0fe;
-  --srm-bg: #f0f2f5;
-  --srm-border: #dce2e8;
-  --srm-text: #1e293b;
-  --srm-text-muted: #64748b;
-  --srm-gold: #f59e0b;
+  --srm-navy: #002b66;       /* Official SRMIST Deep Institutional Navy */
+  --srm-blue: #1a569d;       /* Official SRMIST Royal Blue */
+  --srm-dark: #001a40;       /* Darkest navy tone */
+  --srm-accent: #0284c7;     /* Bright blue accent */
+  --srm-light-blue: #eff6ff; /* Soft academic blue tint */
+  --srm-bg: #f4f7fb;         /* Official SRMIST academic page background */
+  --srm-border: #dbe3ec;     /* Crisp subtle borders */
+  --srm-text: #0f172a;       /* Clean readable text */
+  --srm-text-muted: #556987; /* Elegant slate text */
 }
 
 /* Master Portal Wrapper */
@@ -28,11 +27,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
+  height: 60px;
   background-color: #ffffff;
-  border-bottom: 1px solid var(--srm-border);
-  padding: 0 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-bottom: 2px solid var(--srm-navy);
+  padding: 0 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 43, 102, 0.06);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -291,9 +290,9 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--srm-border);
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -301,26 +300,31 @@
 .srm-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.76rem;
+  gap: 0.45rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
+  color: var(--srm-text-muted);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.45rem;
 }
 
 .srm-breadcrumb .sep {
   color: #94a3b8;
-}
-
-.srm-breadcrumb .current {
-  color: var(--srm-blue);
   font-weight: 700;
 }
 
+.srm-breadcrumb .current {
+  color: var(--srm-navy);
+  font-weight: 700;
+}
+
+.srm-title-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
 .srm-page-title {
-  font-size: 1.45rem;
+  font-size: 1.55rem;
   font-weight: 800;
   color: var(--srm-navy);
   margin: 0;
@@ -328,10 +332,18 @@
   line-height: 1.2;
 }
 
+.srm-title-underline {
+  width: 44px;
+  height: 3px;
+  background-color: var(--srm-blue);
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
 .srm-page-subtitle {
-  font-size: 0.84rem;
-  color: #64748b;
-  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--srm-text-muted);
+  margin: 0.35rem 0 0 0;
 }
 
 .srm-header-actions {
@@ -344,19 +356,19 @@
 .srm-card {
   background: #ffffff;
   border: 1px solid var(--srm-border);
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 43, 102, 0.05);
   margin-bottom: 1.75rem;
   overflow: hidden;
 }
 
 /* SRM Card Blue Header Banner */
 .srm-card-header {
-  background-color: var(--srm-blue);
+  background-color: var(--srm-navy);
   color: #ffffff;
-  padding: 0.75rem 1.25rem;
+  padding: 0.85rem 1.25rem;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

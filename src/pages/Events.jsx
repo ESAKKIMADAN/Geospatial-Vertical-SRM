@@ -13,7 +13,7 @@ const Events = () => {
     <div className="page-transition">
       <HeroSection 
         title="EVENTS & ACTIVITIES"
-        subtitle="Learn. Connect. Innovate."
+        subtitle="Department of Computing Technologies"
         image="https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
       />
 

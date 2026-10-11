@@ -13,7 +13,7 @@ const Projects = () => {
     <div className="page-transition">
       <HeroSection 
         title="CURRENT PROJECTS"
-        subtitle="Student Ideas. Geospatial Technology. Real-World Impact."
+        subtitle="Department of Computing Technologies"
         image="https://images.unsplash.com/photo-1498084393753-b411b2d26b34?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
       />
 

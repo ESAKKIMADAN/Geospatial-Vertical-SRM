@@ -95,3 +95,24 @@ export const ProjectCard = ({ project, onClick }) => {
     </div>
   );
 };
+
+export const VerticalCard = ({ title, description, domains = [], link = "/#", featured = false }) => {
+  return (
+    <div className={`vertical-card ${featured ? 'featured' : ''}`}>
+      {featured && <span className="vertical-card-badge">Specialization Vertical</span>}
+      <h3 className="vertical-card-title">{title}</h3>
+      <p className="vertical-card-desc">{description}</p>
+      {domains.length > 0 && (
+        <div className="vertical-card-domains">
+          {domains.map((dom, i) => (
+            <span key={i} className="vertical-domain-tag">{dom}</span>
+          ))}
+        </div>
+      )}
+      <Link to={link} className="vertical-card-link">
+        <span>Learn More</span>
+        &rarr;
+      </Link>
+    </div>
+  );
+};

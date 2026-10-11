@@ -12,7 +12,7 @@ const About = () => {
     <div className="page-transition">
       <HeroSection 
         title="ABOUT GEOSPATIAL COMPUTING RESEARCH VERTICAL"
-        subtitle="Connecting Geography, Computing and Technological Innovation"
+        subtitle="Department of Computing Technologies"
         image="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
       />
 

@@ -604,16 +604,10 @@ const Admin = () => {
           </button>
 
           <div className="srm-logo-block">
-            <div className="srm-emblem-badge">SRM</div>
-            <div className="srm-portal-label">
-              <span className="srm-brand-title">SRM</span>
-              <span className="srm-brand-subtitle">Geospatial Research Vertical</span>
-            </div>
+            <span className="srm-brand-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--srm-navy)' }}>
+              Geospatial Computing Research Vertical
+            </span>
           </div>
-        </div>
-
-        <div className="srm-topbar-center">
-          <span className="srm-dept-heading">Faculty of Engineering and Technology, Kattankulathur</span>
         </div>
 
         <div className="srm-topbar-right">

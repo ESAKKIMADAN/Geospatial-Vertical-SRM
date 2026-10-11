@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Menu, X, Globe, Mail } from 'lucide-react';
+import { Menu, X, Mail } from 'lucide-react';
 import ContactModal from './ContactModal';
 import '../styles/Navbar.css';
 
@@ -11,7 +11,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -22,32 +22,39 @@ const Navbar = () => {
 
   return (
     <>
-      <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="container nav-container">
-          <Link to="/" className="nav-logo" onClick={closeMenu}>
-            <Globe className="logo-icon" />
-            <span>Geospatial Computing Research Vertical</span>
+      <header className={`portfolio-navbar ${scrolled ? 'scrolled' : ''}`}>
+        <div className="container portfolio-nav-container">
+          <Link to="/" className="portfolio-brand" onClick={closeMenu}>
+            <span className="portfolio-brand-title">Geospatial Computing Research Vertical</span>
           </Link>
           
-          <div className="menu-icon" onClick={toggleMenu}>
-            {isOpen ? <X /> : <Menu />}
+          <div className="portfolio-menu-icon" onClick={toggleMenu} aria-label="Toggle navigation">
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
           </div>
 
-          <nav className={`nav-menu ${isOpen ? 'active' : ''}`}>
-            <NavLink to="/" className="nav-item" onClick={closeMenu}>Home</NavLink>
-            <NavLink to="/about" className="nav-item" onClick={closeMenu}>About</NavLink>
-            <NavLink to="/events" className="nav-item" onClick={closeMenu}>Events</NavLink>
-            <NavLink to="/projects" className="nav-item" onClick={closeMenu}>Projects</NavLink>
+          <nav className={`portfolio-nav-menu ${isOpen ? 'active' : ''}`}>
+            <NavLink to="/" className="portfolio-nav-link" onClick={closeMenu}>
+              Home
+            </NavLink>
+            <NavLink to="/about" className="portfolio-nav-link" onClick={closeMenu}>
+              About
+            </NavLink>
+            <NavLink to="/events" className="portfolio-nav-link" onClick={closeMenu}>
+              Events
+            </NavLink>
+            <NavLink to="/projects" className="portfolio-nav-link" onClick={closeMenu}>
+              Projects
+            </NavLink>
+            
             <button 
               type="button" 
-              className="btn btn-primary nav-btn" 
+              className="portfolio-contact-btn" 
               onClick={() => {
                 closeMenu();
                 setIsContactOpen(true);
               }}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
             >
-              <Mail size={16} /> Contact
+              <Mail size={15} /> <span>Contact</span>
             </button>
           </nav>
         </div>

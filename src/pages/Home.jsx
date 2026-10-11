@@ -1,27 +1,33 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import EarthBackground from '../components/EarthBackground';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
 import { FeatureCard, StatCard, EventCard } from '../components/Cards';
 import CTASection from '../components/CTASection';
 import EventRegisterModal from '../components/EventRegisterModal';
 import { useData } from '../context/DataContext';
+import '../styles/Home.css';
 
 const Home = () => {
   const { clubInfo, upcomingEvents } = useData();
   const [selectedRegisterEvent, setSelectedRegisterEvent] = useState(null);
 
   return (
-    <div className="page-transition">
+    <div className="page-transition home-page-container">
+      {/* 3D Interactive Earth & Space Background */}
+      <EarthBackground />
+
       <HeroSection 
         title={clubInfo.name}
-        subtitle={clubInfo.tagline}
+        subtitle="Department of Computing Technologies"
         description={clubInfo.heroDescription}
+        transparent={true}
         image="https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         buttons={
           <>
-            <Link to="/projects" className="btn btn-primary">Explore Our Work</Link>
-            <Link to="/about" className="btn btn-outline" style={{ borderColor: 'white', color: 'white' }}>Discover the Club</Link>
+            <Link to="/projects" className="btn btn-primary">Explore Our Projects</Link>
+            <Link to="/about" className="btn btn-outline" style={{ borderColor: '#ffffff', color: '#ffffff' }}>About the Vertical</Link>
           </>
         }
       />
@@ -37,7 +43,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="section" style={{ backgroundColor: 'var(--primary)' }}>
+      <section className="section home-stats-section">
         <div className="container">
           <div className="grid grid-4">
             {clubInfo.stats.map((stat, index) => (
@@ -65,7 +71,7 @@ const Home = () => {
       <section className="section text-center">
         <div className="container" style={{ maxWidth: '800px' }}>
           <SectionHeader title="Vision" />
-          <p style={{ fontSize: '1.25rem', fontStyle: 'italic', color: 'var(--text-light)' }}>
+          <p className="home-vision-text" style={{ fontSize: '1.25rem', fontStyle: 'italic' }}>
             "{clubInfo.vision}"
           </p>
         </div>
