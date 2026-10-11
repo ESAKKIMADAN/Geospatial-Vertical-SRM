@@ -5,11 +5,13 @@ import SectionHeader from '../components/SectionHeader';
 import { FeatureCard, StatCard, EventCard, ProjectCard } from '../components/Cards';
 import CTASection from '../components/CTASection';
 import ProjectModal from '../components/ProjectModal';
+import EventRegisterModal from '../components/EventRegisterModal';
 import { useData } from '../context/DataContext';
 
 const Home = () => {
   const { clubInfo, upcomingEvents, projects } = useData();
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedRegisterEvent, setSelectedRegisterEvent] = useState(null);
 
   return (
     <div className="page-transition">
@@ -52,7 +54,11 @@ const Home = () => {
           <SectionHeader title="Featured Upcoming Event" />
           <div style={{ maxWidth: '800px', margin: '0 auto' }}>
             {upcomingEvents.length > 0 && (
-              <EventCard event={upcomingEvents[0]} type="upcoming" />
+              <EventCard 
+                event={upcomingEvents[0]} 
+                type="upcoming" 
+                onRegister={setSelectedRegisterEvent} 
+              />
             )}
           </div>
         </div>
@@ -88,6 +94,12 @@ const Home = () => {
       {selectedProject && (
         <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
       )}
+
+      <EventRegisterModal 
+        event={selectedRegisterEvent} 
+        isOpen={Boolean(selectedRegisterEvent)} 
+        onClose={() => setSelectedRegisterEvent(null)} 
+      />
     </div>
   );
 };

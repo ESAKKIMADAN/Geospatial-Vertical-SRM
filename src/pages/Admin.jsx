@@ -4,7 +4,8 @@ import {
   Calendar, Clock, MapPin, Users, Activity, Plus, Edit3, Trash2, 
   CheckCircle, ArrowRightLeft, Sparkles, Download, Upload, RotateCcw, 
   Search, ExternalLink, GraduationCap, FolderGit2, Settings, ShieldCheck,
-  Check, Mail, Globe, Map, Lock, LogOut, Eye, EyeOff, AlertCircle, ArrowLeft, Key, MessageSquare
+  Check, Mail, Globe, Map, Lock, LogOut, Eye, EyeOff, AlertCircle, ArrowLeft, Key, MessageSquare,
+  FileSpreadsheet, UserCheck, Filter
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import '../styles/Admin.css';
@@ -19,6 +20,9 @@ const Admin = () => {
     messages = [],
     deleteMessage,
     markMessageAsRead,
+    registrations = [],
+    deleteRegistration,
+    exportRegistrationsExcel,
     isAuthenticated,
     adminCredentials,
     login,
@@ -51,10 +55,11 @@ const Admin = () => {
   const [securityEmail, setSecurityEmail] = useState(adminCredentials?.email || 'admin@srmist.edu.in');
   const [securityPassword, setSecurityPassword] = useState(adminCredentials?.password || 'admin');
 
-  const [activeTab, setActiveTab] = useState('events'); // events | projects | faculty | messages | settings
+  const [activeTab, setActiveTab] = useState('events'); // events | registrations | projects | faculty | messages | settings
   const [eventFilter, setEventFilter] = useState('all'); // all | upcoming | past
   const [projectStatusFilter, setProjectStatusFilter] = useState('all'); // all | Ongoing | Completed
   const [messageFilter, setMessageFilter] = useState('all'); // all | unread | read
+  const [selectedRegEventFilter, setSelectedRegEventFilter] = useState('all'); // all | eventId
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -68,7 +73,10 @@ const Admin = () => {
     venue: '',
     description: '',
     image: '',
-    statusType: 'upcoming'
+    statusType: 'upcoming',
+    registrationType: 'form',
+    registrationLink: '',
+    registrationOpen: true
   });
 
   const [projectModalOpen, setProjectModalOpen] = useState(false);
@@ -159,7 +167,10 @@ const Admin = () => {
       venue: '',
       description: '',
       image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      statusType: 'upcoming'
+      statusType: 'upcoming',
+      registrationType: 'form',
+      registrationLink: '',
+      registrationOpen: true
     });
     setEventModalOpen(true);
   };
@@ -173,7 +184,10 @@ const Admin = () => {
       venue: evt.venue || '',
       description: evt.description || '',
       image: evt.image || '',
-      statusType: isUpcoming ? 'upcoming' : 'past'
+      statusType: isUpcoming ? 'upcoming' : 'past',
+      registrationType: evt.registrationType || 'form',
+      registrationLink: evt.registrationLink || '',
+      registrationOpen: evt.registrationOpen !== false
     });
     setEventModalOpen(true);
   };
@@ -185,41 +199,34 @@ const Admin = () => {
       return;
     }
 
+    const eventPayload = {
+      title: eventFormData.title,
+      date: eventFormData.date,
+      time: eventFormData.time,
+      venue: eventFormData.venue,
+      description: eventFormData.description,
+      image: eventFormData.image,
+      registrationType: eventFormData.registrationType,
+      registrationLink: eventFormData.registrationLink,
+      registrationOpen: eventFormData.registrationOpen
+    };
+
     if (editingEvent) {
       const isCurrentlyUpcoming = editingEvent.isUpcoming;
       const targetIsUpcoming = eventFormData.statusType === 'upcoming';
 
       if (isCurrentlyUpcoming === targetIsUpcoming) {
-        updateEvent(editingEvent.id, {
-          title: eventFormData.title,
-          date: eventFormData.date,
-          time: eventFormData.time,
-          venue: eventFormData.venue,
-          description: eventFormData.description,
-          image: eventFormData.image
-        }, targetIsUpcoming);
+        updateEvent(editingEvent.id, eventPayload, targetIsUpcoming);
       } else {
         deleteEvent(editingEvent.id, isCurrentlyUpcoming);
         addEvent({
           id: editingEvent.id,
-          title: eventFormData.title,
-          date: eventFormData.date,
-          time: eventFormData.time,
-          venue: eventFormData.venue,
-          description: eventFormData.description,
-          image: eventFormData.image
+          ...eventPayload
         }, targetIsUpcoming);
       }
       showToast(`Event "${eventFormData.title}" updated successfully!`);
     } else {
-      addEvent({
-        title: eventFormData.title,
-        date: eventFormData.date,
-        time: eventFormData.time,
-        venue: eventFormData.venue,
-        description: eventFormData.description,
-        image: eventFormData.image
-      }, eventFormData.statusType === 'upcoming');
+      addEvent(eventPayload, eventFormData.statusType === 'upcoming');
       showToast(`New event "${eventFormData.title}" created successfully!`);
     }
     setEventModalOpen(false);
@@ -463,6 +470,23 @@ const Admin = () => {
     return true;
   });
 
+  const filteredRegistrations = registrations.filter(reg => {
+    if (selectedRegEventFilter !== 'all' && reg.eventId !== selectedRegEventFilter) {
+      return false;
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchName = reg.fullName?.toLowerCase().includes(q);
+      const matchRegNo = reg.regNumber?.toLowerCase().includes(q);
+      const matchEmail = reg.email?.toLowerCase().includes(q);
+      const matchDept = reg.department?.toLowerCase().includes(q);
+      const matchEvent = reg.eventTitle?.toLowerCase().includes(q);
+      const matchId = reg.id?.toLowerCase().includes(q);
+      return matchName || matchRegNo || matchEmail || matchDept || matchEvent || matchId;
+    }
+    return true;
+  });
+
   if (!isAuthenticated) {
     return (
       <div className="admin-login-wrapper">
@@ -656,6 +680,16 @@ const Admin = () => {
                 <div className="stat-desc">Inquiries ({unreadCount} new)</div>
               </div>
             </div>
+
+            <div className="admin-stat-pill" onClick={() => { setActiveTab('registrations'); setSearchQuery(''); }} style={{ cursor: 'pointer' }} title="Click to view registrations">
+              <div className="stat-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}>
+                <Users size={22} />
+              </div>
+              <div className="stat-info">
+                <div className="stat-num">{registrations.length}</div>
+                <div className="stat-desc">Registrations</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -668,6 +702,17 @@ const Admin = () => {
             <Calendar size={18} />
             Events (Upcoming & Done)
             <span className="tab-count">{upcomingEvents.length + pastEvents.length}</span>
+          </button>
+
+          <button 
+            className={`admin-tab-btn ${activeTab === 'registrations' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('registrations'); setSearchQuery(''); }}
+          >
+            <Users size={18} />
+            Registrations & Live Excel
+            <span className="tab-count" style={{ backgroundColor: '#10b981', color: '#ffffff', fontWeight: 800 }}>
+              {registrations.length}
+            </span>
           </button>
 
           <button 
@@ -784,6 +829,88 @@ const Admin = () => {
                     </div>
                     <p className="item-desc">{evt.description}</p>
 
+                    {/* Registration Status & Attendee Count */}
+                    {evt.isUpcoming && (
+                      <div style={{
+                        marginTop: '0.75rem',
+                        marginBottom: '0.5rem',
+                        padding: '0.65rem 0.85rem',
+                        background: '#f8fafc',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '0.5rem'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '12px',
+                            background: evt.registrationType === 'link' ? '#eff6ff' : '#ecfdf5',
+                            color: evt.registrationType === 'link' ? '#1d4ed8' : '#047857',
+                            border: `1px solid ${evt.registrationType === 'link' ? '#bfdbfe' : '#a7f3d0'}`
+                          }}>
+                            {evt.registrationType === 'link' ? 'External Link' : 'On-Site Form'}
+                          </span>
+                          <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>
+                            {registrations.filter(r => r.eventId === evt.id).length} Registered
+                          </span>
+                        </div>
+
+                        {evt.registrationType !== 'link' && (
+                          <div style={{ display: 'flex', gap: '0.35rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => exportRegistrationsExcel(evt.id)}
+                              style={{
+                                fontSize: '0.76rem',
+                                fontWeight: 600,
+                                background: '#10b981',
+                                border: 'none',
+                                color: '#ffffff',
+                                padding: '0.3rem 0.65rem',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                              }}
+                              title="Download registered students Excel sheet (.xlsx) for this event"
+                            >
+                              <Download size={13} /> Excel (.xlsx)
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedRegEventFilter(evt.id);
+                                setActiveTab('registrations');
+                              }}
+                              style={{
+                                fontSize: '0.76rem',
+                                fontWeight: 600,
+                                background: '#0a192f',
+                                border: 'none',
+                                color: '#ffffff',
+                                padding: '0.3rem 0.65rem',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem'
+                              }}
+                              title="View registered attendees"
+                            >
+                              <Eye size={13} /> View
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="item-actions">
                       <button 
                         className="action-status-toggle"
@@ -821,6 +948,178 @@ const Admin = () => {
                   <button className="btn-create" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddEvent}>
                     <Plus size={18} /> Create First Event
                   </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ================= REGISTRATIONS & LIVE EXCEL TAB ================= */}
+        {activeTab === 'registrations' && (
+          <div>
+            <div className="admin-toolbar">
+              <div className="toolbar-left">
+                <div className="search-box">
+                  <Search size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="Search by student name, reg no, SRMIST email, department..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Filter size={16} color="#64748b" />
+                  <select
+                    className="form-control"
+                    style={{ minWidth: '220px', padding: '0.5rem 0.8rem', fontSize: '0.88rem', background: '#f8fafc' }}
+                    value={selectedRegEventFilter}
+                    onChange={(e) => setSelectedRegEventFilter(e.target.value)}
+                  >
+                    <option value="all">All Events ({registrations.length})</option>
+                    {upcomingEvents.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        {evt.title} ({registrations.filter(r => r.eventId === evt.id).length})
+                      </option>
+                    ))}
+                    {pastEvents.map(evt => (
+                      <option key={evt.id} value={evt.id}>
+                        [Past] {evt.title} ({registrations.filter(r => r.eventId === evt.id).length})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedRegEventFilter !== 'all' && (
+                  <button 
+                    type="button"
+                    className="subfilter-pill"
+                    onClick={() => setSelectedRegEventFilter('all')}
+                    style={{ fontSize: '0.8rem', cursor: 'pointer' }}
+                  >
+                    Clear Event Filter ✕
+                  </button>
+                )}
+              </div>
+
+              <button 
+                type="button"
+                className="admin-btn-success"
+                onClick={() => {
+                  exportRegistrationsExcel(selectedRegEventFilter === 'all' ? null : selectedRegEventFilter);
+                  showToast('Live Excel sheet downloaded successfully!');
+                }}
+                disabled={filteredRegistrations.length === 0}
+                style={{ opacity: filteredRegistrations.length === 0 ? 0.6 : 1 }}
+                title="Download as Microsoft Excel (.xlsx) file"
+              >
+                <FileSpreadsheet size={18} />
+                Download Live Excel (.xlsx)
+              </button>
+            </div>
+
+            {/* Quick summary strip */}
+            <div style={{ 
+              background: '#f8fafc', 
+              padding: '0.75rem 1.25rem', 
+              borderRadius: '8px', 
+              border: '1px solid #e2e8f0', 
+              marginBottom: '1rem', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '0.5rem'
+            }}>
+              <div style={{ fontSize: '0.88rem', color: '#475569' }}>
+                Showing <strong>{filteredRegistrations.length}</strong> of <strong>{registrations.length}</strong> total student registrations
+                {selectedRegEventFilter !== 'all' && (
+                  <span> for event: <em>{upcomingEvents.find(e => e.id === selectedRegEventFilter)?.title || pastEvents.find(e => e.id === selectedRegEventFilter)?.title}</em></span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 600 }}>
+                ✓ Instant real-time database with SRMIST email verification
+              </div>
+            </div>
+
+            {/* Registrations Table */}
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '45px' }}>#</th>
+                    <th>Reg ID</th>
+                    <th>Event</th>
+                    <th>Student Name</th>
+                    <th>Register Number</th>
+                    <th>SRMIST Email</th>
+                    <th>Department & Year</th>
+                    <th>Phone / WhatsApp</th>
+                    <th>Registered At</th>
+                    <th style={{ textAlign: 'center' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRegistrations.map((reg, index) => (
+                    <tr key={reg.id}>
+                      <td style={{ color: '#94a3b8', fontWeight: 600 }}>{index + 1}</td>
+                      <td>
+                        <span className="badge-reg-id">{reg.id}</span>
+                      </td>
+                      <td>
+                        <strong style={{ color: '#0a192f', fontSize: '0.88rem' }}>{reg.eventTitle}</strong>
+                      </td>
+                      <td style={{ fontWeight: 600, color: '#1e293b' }}>
+                        {reg.fullName}
+                      </td>
+                      <td style={{ fontFamily: 'monospace', fontWeight: 600, color: '#334155' }}>
+                        {reg.regNumber}
+                      </td>
+                      <td>
+                        <span className="badge-srm-email">
+                          <Check size={12} /> {reg.email}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '0.85rem' }}>{reg.department || 'N/A'}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{reg.year ? `Year ${reg.year}` : ''}</div>
+                      </td>
+                      <td style={{ fontSize: '0.85rem', color: '#475569' }}>
+                        {reg.phone || 'N/A'}
+                      </td>
+                      <td style={{ fontSize: '0.8rem', color: '#64748b', whiteSpace: 'nowrap' }}>
+                        {reg.registeredAt || 'N/A'}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          type="button"
+                          className="btn-icon-action delete"
+                          onClick={() => {
+                            if (window.confirm(`Delete registration for "${reg.fullName}" (${reg.id})?`)) {
+                              deleteRegistration(reg.id);
+                              showToast(`Registration ${reg.id} deleted.`);
+                            }
+                          }}
+                          title="Delete Registration"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredRegistrations.length === 0 && (
+                <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                  <Users size={44} color="#94a3b8" style={{ margin: '0 auto 1rem' }} />
+                  <p style={{ color: '#64748b', fontSize: '1.15rem', fontWeight: 600 }}>
+                    {searchQuery ? 'No registrations match your search criteria.' : 'No registrations received yet.'}
+                  </p>
+                  <p style={{ color: '#94a3b8', fontSize: '0.92rem', marginTop: '0.35rem', maxWidth: '520px', margin: '0.35rem auto 0' }}>
+                    When students register for upcoming events through the on-site registration modal on the public website, their submissions will automatically appear here in live time and can be exported as an Excel file.
+                  </p>
                 </div>
               )}
             </div>
@@ -1404,6 +1703,63 @@ const Admin = () => {
                     <option value="upcoming">Upcoming Event (Active)</option>
                     <option value="past">Completed / Done Event (Archive)</option>
                   </select>
+                </div>
+
+                {/* Registration Mode Settings */}
+                <div className="form-group" style={{ background: '#f8fafc', padding: '1.1rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <label style={{ fontWeight: 700, color: '#0a192f', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                    <Users size={16} color="#059669" /> Registration Method (Upcoming Events)
+                  </label>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.75rem', lineHeight: '1.4' }}>
+                    Choose whether students register via an on-site custom form (real-time Excel export) or an external Google Form / portal link.
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                      <input 
+                        type="radio" 
+                        name="registrationType"
+                        value="form"
+                        checked={eventFormData.registrationType === 'form'}
+                        onChange={() => setEventFormData({ ...eventFormData, registrationType: 'form' })}
+                      />
+                      <span>Custom Form on Website</span>
+                    </label>
+
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600 }}>
+                      <input 
+                        type="radio" 
+                        name="registrationType"
+                        value="link"
+                        checked={eventFormData.registrationType === 'link'}
+                        onChange={() => setEventFormData({ ...eventFormData, registrationType: 'link' })}
+                      />
+                      <span>External Form / Portal Link</span>
+                    </label>
+                  </div>
+
+                  {eventFormData.registrationType === 'link' ? (
+                    <div>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '0.35rem' }}>
+                        External Registration Link *
+                      </label>
+                      <input 
+                        type="url"
+                        className="form-control"
+                        placeholder="https://forms.gle/... or https://portal.srmist.edu.in/..."
+                        value={eventFormData.registrationLink}
+                        onChange={(e) => setEventFormData({ ...eventFormData, registrationLink: e.target.value })}
+                        required={eventFormData.registrationType === 'link'}
+                      />
+                      <small style={{ color: '#64748b', fontSize: '0.78rem', display: 'block', marginTop: '0.35rem' }}>
+                        Clicking "Register" on the website will redirect students to this external URL in a new tab.
+                      </small>
+                    </div>
+                  ) : (
+                    <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '0.65rem 0.85rem', borderRadius: '6px', fontSize: '0.82rem', color: '#047857' }}>
+                      ✓ <strong>Custom Web Form Enabled:</strong> Students can register directly using their SRMIST email. All entries are captured live and available for instant Excel (.xlsx) export.
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-grid-2">

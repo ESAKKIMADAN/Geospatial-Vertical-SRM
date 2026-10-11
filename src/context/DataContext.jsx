@@ -4,9 +4,50 @@ import { projects as initialProjects } from '../data/projects';
 import { clubInfo as initialClubInfo } from '../data/club';
 import { initialFaculty } from '../data/faculty';
 
+import { exportRegistrationsToExcel } from '../utils/excelExport';
+
 const STORAGE_KEY = 'geospatial_srm_state_v3';
 
 const DataContext = createContext(null);
+
+const initialRegistrations = [
+  {
+    id: "REG-GEO-1001",
+    eventId: "evt-001",
+    eventTitle: "GeoAI & Smart Mapping Workshop",
+    name: "Kavya Sundaram",
+    email: "ks8214@srmist.edu.in",
+    registerNumber: "RA2311003010145",
+    department: "Computer Science & Engineering",
+    year: "3rd Year",
+    phone: "+91 98765 43210",
+    registeredAt: "10 Oct 2026, 02:40 PM"
+  },
+  {
+    id: "REG-GEO-1002",
+    eventId: "evt-001",
+    eventTitle: "GeoAI & Smart Mapping Workshop",
+    name: "Aditya Nair",
+    email: "an3921@srmist.edu.in",
+    registerNumber: "RA2311003010212",
+    department: "Data Science & GeoAI",
+    year: "2nd Year",
+    phone: "+91 91234 56780",
+    registeredAt: "10 Oct 2026, 05:15 PM"
+  },
+  {
+    id: "REG-GEO-1003",
+    eventId: "evt-002",
+    eventTitle: "Introduction to Remote Sensing",
+    name: "Sneha Reddy",
+    email: "sr9042@srmist.edu.in",
+    registerNumber: "RA2211004020088",
+    department: "Civil Engineering & GIS",
+    year: "4th Year",
+    phone: "+91 99887 76655",
+    registeredAt: "11 Oct 2026, 08:30 AM"
+  }
+];
 
 const initialMessages = [
   {
@@ -28,6 +69,15 @@ const initialMessages = [
 ];
 
 export const DataProvider = ({ children }) => {
+  const [registrations, setRegistrations] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_registrations`);
+      return saved ? JSON.parse(saved) : initialRegistrations;
+    } catch {
+      return initialRegistrations;
+    }
+  });
+
   const [messages, setMessages] = useState(() => {
     try {
       const saved = localStorage.getItem(`${STORAGE_KEY}_messages`);
@@ -231,6 +281,86 @@ export const DataProvider = ({ children }) => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
   };
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(`${STORAGE_KEY}_registrations`, JSON.stringify(registrations));
+    } catch (e) {
+      console.error('Failed to save registrations to localStorage', e);
+    }
+  }, [registrations]);
+
+  // --- EVENT REGISTRATIONS ACTIONS ---
+  const addRegistration = ({ eventId, eventTitle, name, email, registerNumber, department, year, phone }) => {
+    const trimmedEmail = email?.trim().toLowerCase() || '';
+    if (!trimmedEmail.endsWith('@srmist.edu.in')) {
+      return { 
+        success: false, 
+        error: 'Only @srmist.edu.in institutional email addresses are permitted (e.g. yourname@srmist.edu.in).' 
+      };
+    }
+
+    if (!name?.trim() || !registerNumber?.trim() || !phone?.trim()) {
+      return {
+        success: false,
+        error: 'Please fill in all required fields (Name, Register Number, Phone Number).'
+      };
+    }
+
+    // Check for duplicate registration for same event
+    const duplicate = registrations.find(
+      r => r.eventId === eventId && (
+        r.email.toLowerCase() === trimmedEmail || 
+        r.registerNumber.toLowerCase() === registerNumber.trim().toLowerCase()
+      )
+    );
+    if (duplicate) {
+      return {
+        success: false,
+        error: 'You are already registered for this event with this email or register number!'
+      };
+    }
+
+    const newRegistration = {
+      id: `REG-GEO-${Math.floor(1000 + Math.random() * 9000)}`,
+      eventId,
+      eventTitle: eventTitle || 'Geospatial Event',
+      name: name.trim(),
+      email: trimmedEmail,
+      registerNumber: registerNumber.trim().toUpperCase(),
+      department: department?.trim() || 'General Engineering',
+      year: year || '3rd Year',
+      phone: phone.trim(),
+      registeredAt: new Date().toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    };
+
+    setRegistrations(prev => [newRegistration, ...prev]);
+    return { success: true, registration: newRegistration };
+  };
+
+  const deleteRegistration = (id) => {
+    setRegistrations(prev => prev.filter(r => r.id !== id));
+  };
+
+  const exportRegistrationsExcel = (eventId = null) => {
+    const target = eventId 
+      ? registrations.filter(r => r.eventId === eventId)
+      : registrations;
+    
+    let title = 'All_Events';
+    if (eventId) {
+      const match = upcomingEvents.find(e => e.id === eventId) || pastEvents.find(e => e.id === eventId);
+      title = match ? match.title : `Event_${eventId}`;
+    }
+    exportRegistrationsToExcel(target, title);
+  };
+
   // --- EVENTS ACTIONS ---
   const addEvent = (eventData, isUpcoming = true) => {
     const newEvent = {
@@ -378,6 +508,7 @@ export const DataProvider = ({ children }) => {
     setFaculty(initialFaculty);
     setClubInfo(initialClubInfo);
     setMessages(initialMessages);
+    setRegistrations(initialRegistrations);
     try {
       localStorage.removeItem(`${STORAGE_KEY}_upcoming_events`);
       localStorage.removeItem(`${STORAGE_KEY}_past_events`);
@@ -385,6 +516,7 @@ export const DataProvider = ({ children }) => {
       localStorage.removeItem(`${STORAGE_KEY}_faculty`);
       localStorage.removeItem(`${STORAGE_KEY}_club_info`);
       localStorage.removeItem(`${STORAGE_KEY}_messages`);
+      localStorage.removeItem(`${STORAGE_KEY}_registrations`);
     } catch (e) {
       console.error('Error clearing localStorage', e);
     }
@@ -398,7 +530,8 @@ export const DataProvider = ({ children }) => {
       pastEvents,
       projects,
       faculty,
-      messages
+      messages,
+      registrations
     };
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -416,6 +549,7 @@ export const DataProvider = ({ children }) => {
     if (Array.isArray(importedData.projects)) setProjects(importedData.projects);
     if (Array.isArray(importedData.faculty)) setFaculty(importedData.faculty);
     if (Array.isArray(importedData.messages)) setMessages(importedData.messages);
+    if (Array.isArray(importedData.registrations)) setRegistrations(importedData.registrations);
   };
 
   const value = {
@@ -425,6 +559,7 @@ export const DataProvider = ({ children }) => {
     faculty,
     clubInfo,
     messages,
+    registrations,
     isAuthenticated,
     adminCredentials,
     login,
@@ -443,6 +578,9 @@ export const DataProvider = ({ children }) => {
     addMessage,
     deleteMessage,
     markMessageAsRead,
+    addRegistration,
+    deleteRegistration,
+    exportRegistrationsExcel,
     updateClubInfo,
     updateStats,
     resetToDefaults,

@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
 import { EventCard } from '../components/Cards';
+import EventRegisterModal from '../components/EventRegisterModal';
 import { useData } from '../context/DataContext';
 
 const Events = () => {
   const { upcomingEvents, pastEvents } = useData();
+  const [selectedRegisterEvent, setSelectedRegisterEvent] = useState(null);
 
   return (
     <div className="page-transition">
@@ -21,7 +23,12 @@ const Events = () => {
           {upcomingEvents.length > 0 ? (
             <div className="grid grid-3">
               {upcomingEvents.map(event => (
-                <EventCard key={event.id} event={event} type="upcoming" />
+                <EventCard 
+                  key={event.id} 
+                  event={event} 
+                  type="upcoming" 
+                  onRegister={setSelectedRegisterEvent} 
+                />
               ))}
             </div>
           ) : (
@@ -48,6 +55,12 @@ const Events = () => {
           )}
         </div>
       </section>
+
+      <EventRegisterModal 
+        event={selectedRegisterEvent} 
+        isOpen={Boolean(selectedRegisterEvent)} 
+        onClose={() => setSelectedRegisterEvent(null)} 
+      />
     </div>
   );
 };

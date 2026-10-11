@@ -6,7 +6,10 @@ export const upcomingEvents = [
     time: "10:00 AM – 1:00 PM",
     venue: "SRM Institute of Science and Technology",
     description: "Join us for an immersive workshop exploring the intersection of Artificial Intelligence and geospatial mapping. Learn how to apply machine learning to spatial datasets.",
-    image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    registrationType: "form",
+    registrationLink: "",
+    registrationOpen: true
   },
   {
     id: "evt-002",
@@ -15,7 +18,10 @@ export const upcomingEvents = [
     time: "2:00 PM – 4:00 PM",
     venue: "Geospatial Innovation Lab",
     description: "A beginner-friendly session on understanding Earth observation technologies, satellite imagery analysis, and their practical applications.",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    registrationType: "form",
+    registrationLink: "",
+    registrationOpen: true
   },
   {
     id: "evt-003",
@@ -24,7 +30,10 @@ export const upcomingEvents = [
     time: "9:00 AM – 4:00 PM",
     venue: "SRMIST Campus",
     description: "An exciting collaborative event where students will work together to digitize and create detailed maps of the university campus using modern GIS tools.",
-    image: "https://images.unsplash.com/photo-1526778548025-fa2fbfb25c0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+    image: "https://images.unsplash.com/photo-1526778548025-fa2fbfb25c0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    registrationType: "link",
+    registrationLink: "https://forms.google.com",
+    registrationOpen: true
   }
 ];
 

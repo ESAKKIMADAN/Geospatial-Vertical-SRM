@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Users, Activity, Map, Satellite, BrainCircuit, Database, Eye, Lightbulb } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Activity, Map, Satellite, BrainCircuit, Database, Eye, Lightbulb, ExternalLink, Send } from 'lucide-react';
 import '../styles/Cards.css';
 
 const IconMap = {
@@ -27,7 +27,9 @@ export const StatCard = ({ label, value }) => (
   </div>
 );
 
-export const EventCard = ({ event, type = 'upcoming' }) => {
+export const EventCard = ({ event, type = 'upcoming', onRegister }) => {
+  const isLink = event.registrationType === 'link' && event.registrationLink;
+
   return (
     <div className="card event-card">
       <div className="card-image-wrapper">
@@ -42,7 +44,32 @@ export const EventCard = ({ event, type = 'upcoming' }) => {
           {event.venue && <span><MapPin size={16} /> {event.venue}</span>}
         </div>
         <p className="card-text">{event.description}</p>
-        <button className="btn btn-outline card-btn">View Details</button>
+        
+        {type === 'upcoming' ? (
+          isLink ? (
+            <a 
+              href={event.registrationLink} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn btn-primary card-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', textDecoration: 'none' }}
+            >
+              <ExternalLink size={15} /> Register (External Portal)
+            </a>
+          ) : (
+            <button 
+              className="btn btn-primary card-btn" 
+              onClick={() => onRegister && onRegister(event)}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+            >
+              <Send size={15} /> Register Now
+            </button>
+          )
+        ) : (
+          <button className="btn btn-outline card-btn" disabled style={{ opacity: 0.7, cursor: 'default' }}>
+            Completed Activity
+          </button>
+        )}
       </div>
     </div>
   );
