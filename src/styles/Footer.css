@@ -63,6 +63,18 @@
   font-size: 0.9rem;
 }
 
+.footer-admin-link {
+  color: #A0AEC0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.footer-admin-link:hover {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .footer-grid {
     grid-template-columns: 1fr;

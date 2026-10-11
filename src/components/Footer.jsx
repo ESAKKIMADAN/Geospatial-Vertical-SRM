@@ -27,7 +27,9 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Geospatial Computing Research Vertical. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Geospatial Computing Research Vertical. All rights reserved. • <Link to="/admin" className="footer-admin-link">Admin Portal</Link>
+          </p>
         </div>
       </div>
     </footer>
