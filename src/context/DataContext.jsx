@@ -5,6 +5,7 @@ import { clubInfo as initialClubInfo } from '../data/club';
 import { initialFaculty } from '../data/faculty';
 
 import { exportRegistrationsToExcel } from '../utils/excelExport';
+import { supabase } from '../supabaseClient';
 
 const STORAGE_KEY = 'geospatial_srm_state_v3';
 
@@ -236,6 +237,74 @@ export const DataProvider = ({ children }) => {
     }
   }, [messages]);
 
+  // Live synchronization from Supabase cloud database
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSupabaseData = async () => {
+      try {
+        // 1. Fetch live registrations
+        const { data: regData, error: regError } = await supabase
+          .from('registrations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!regError && regData && regData.length > 0 && isMounted) {
+          setRegistrations(regData);
+        }
+
+        // 2. Fetch live messages
+        const { data: msgData, error: msgError } = await supabase
+          .from('messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!msgError && msgData && msgData.length > 0 && isMounted) {
+          setMessages(msgData);
+        }
+
+        // 3. Fetch events
+        const { data: evData, error: evError } = await supabase
+          .from('events')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!evError && evData && evData.length > 0 && isMounted) {
+          setUpcomingEvents(evData.filter(e => e.isUpcoming));
+          setPastEvents(evData.filter(e => !e.isUpcoming));
+        }
+
+        // 4. Fetch projects
+        const { data: projData, error: projError } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!projError && projData && projData.length > 0 && isMounted) {
+          setProjects(projData);
+        }
+
+        // 5. Fetch faculty
+        const { data: facData, error: facError } = await supabase
+          .from('faculty')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!facError && facData && facData.length > 0 && isMounted) {
+          setFaculty(facData);
+        }
+      } catch (err) {
+        console.warn('Supabase fetch note:', err);
+      }
+    };
+
+    fetchSupabaseData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // --- CONTACT MESSAGES ACTIONS ---
   const addMessage = ({ name, email, comment }) => {
     const trimmedEmail = email?.trim().toLowerCase() || '';
@@ -270,15 +339,28 @@ export const DataProvider = ({ children }) => {
     };
 
     setMessages(prev => [newMessage, ...prev]);
+
+    // Asynchronously insert into Supabase
+    supabase.from('messages').insert([{
+      id: newMessage.id,
+      name: newMessage.name,
+      email: newMessage.email,
+      comment: newMessage.comment,
+      timestamp: newMessage.timestamp,
+      read: newMessage.read
+    }]).then(() => {}).catch(err => console.warn('Supabase msg insert err:', err));
+
     return { success: true, message: newMessage };
   };
 
   const deleteMessage = (id) => {
     setMessages(prev => prev.filter(m => m.id !== id));
+    supabase.from('messages').delete().eq('id', id).then(() => {}).catch(err => console.warn('Supabase msg del err:', err));
   };
 
   const markMessageAsRead = (id) => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
+    supabase.from('messages').update({ read: true }).eq('id', id).then(() => {}).catch(err => console.warn('Supabase msg update err:', err));
   };
 
   useEffect(() => {
@@ -341,11 +423,29 @@ export const DataProvider = ({ children }) => {
     };
 
     setRegistrations(prev => [newRegistration, ...prev]);
+
+    // Asynchronously insert into Supabase registrations table
+    supabase.from('registrations').insert([{
+      id: newRegistration.id,
+      eventId: newRegistration.eventId,
+      eventTitle: newRegistration.eventTitle,
+      name: newRegistration.name,
+      email: newRegistration.email,
+      registerNumber: newRegistration.registerNumber,
+      department: newRegistration.department,
+      year: newRegistration.year,
+      phone: newRegistration.phone,
+      registeredAt: newRegistration.registeredAt
+    }]).then(({ error }) => {
+      if (error) console.warn('Supabase registration insert note:', error.message);
+    }).catch(err => console.warn('Supabase registration insert err:', err));
+
     return { success: true, registration: newRegistration };
   };
 
   const deleteRegistration = (id) => {
     setRegistrations(prev => prev.filter(r => r.id !== id));
+    supabase.from('registrations').delete().eq('id', id).then(() => {}).catch(err => console.warn('Supabase reg del err:', err));
   };
 
   const exportRegistrationsExcel = (eventId = null) => {
@@ -372,6 +472,21 @@ export const DataProvider = ({ children }) => {
     } else {
       setPastEvents(prev => [newEvent, ...prev]);
     }
+
+    supabase.from('events').insert([{
+      id: newEvent.id,
+      title: newEvent.title,
+      date: newEvent.date,
+      time: newEvent.time,
+      venue: newEvent.venue,
+      description: newEvent.description,
+      image: newEvent.image,
+      isUpcoming: isUpcoming,
+      registrationType: newEvent.registrationType || 'form',
+      registrationLink: newEvent.registrationLink || '',
+      registrationOpen: newEvent.registrationOpen ?? true
+    }]).then(() => {}).catch(err => console.warn('Supabase addEvent err:', err));
+
     return newEvent;
   };
 
@@ -385,6 +500,8 @@ export const DataProvider = ({ children }) => {
         prev.map(evt => (evt.id === id ? { ...evt, ...updatedFields } : evt))
       );
     }
+
+    supabase.from('events').update(updatedFields).eq('id', id).then(() => {}).catch(err => console.warn('Supabase updateEvent err:', err));
   };
 
   const deleteEvent = (id, isUpcoming = true) => {
@@ -393,6 +510,8 @@ export const DataProvider = ({ children }) => {
     } else {
       setPastEvents(prev => prev.filter(evt => evt.id !== id));
     }
+
+    supabase.from('events').delete().eq('id', id).then(() => {}).catch(err => console.warn('Supabase deleteEvent err:', err));
   };
 
   const toggleEventStatus = (id) => {
@@ -400,6 +519,7 @@ export const DataProvider = ({ children }) => {
     if (upcomingMatch) {
       setUpcomingEvents(prev => prev.filter(e => e.id !== id));
       setPastEvents(prev => [{ ...upcomingMatch }, ...prev]);
+      supabase.from('events').update({ isUpcoming: false }).eq('id', id).then(() => {}).catch(err => console.warn(err));
       return 'done';
     }
 
@@ -407,6 +527,7 @@ export const DataProvider = ({ children }) => {
     if (pastMatch) {
       setPastEvents(prev => prev.filter(e => e.id !== id));
       setUpcomingEvents(prev => [{ ...pastMatch }, ...prev]);
+      supabase.from('events').update({ isUpcoming: true }).eq('id', id).then(() => {}).catch(err => console.warn(err));
       return 'upcoming';
     }
     return null;
@@ -430,6 +551,13 @@ export const DataProvider = ({ children }) => {
         : []
     };
     setProjects(prev => [newProject, ...prev]);
+
+    supabase.from('projects').insert([{
+      ...newProject,
+      technologies: JSON.stringify(newProject.technologies),
+      objectives: JSON.stringify(newProject.objectives)
+    }]).then(() => {}).catch(err => console.warn('Supabase addProject err:', err));
+
     return newProject;
   };
 
@@ -459,10 +587,13 @@ export const DataProvider = ({ children }) => {
         return proj;
       })
     );
+
+    supabase.from('projects').update(updatedFields).eq('id', id).then(() => {}).catch(err => console.warn('Supabase updateProject err:', err));
   };
 
   const deleteProject = (id) => {
     setProjects(prev => prev.filter(p => p.id !== id));
+    supabase.from('projects').delete().eq('id', id).then(() => {}).catch(err => console.warn('Supabase deleteProject err:', err));
   };
 
   // --- FACULTY ACTIONS ---
@@ -472,6 +603,7 @@ export const DataProvider = ({ children }) => {
       id: facultyData.id || `fac-${Date.now()}`
     };
     setFaculty(prev => [...prev, newFaculty]);
+    supabase.from('faculty').insert([newFaculty]).then(() => {}).catch(err => console.warn('Supabase addFaculty err:', err));
     return newFaculty;
   };
 
@@ -479,10 +611,12 @@ export const DataProvider = ({ children }) => {
     setFaculty(prev =>
       prev.map(f => (f.id === id ? { ...f, ...updatedFields } : f))
     );
+    supabase.from('faculty').update(updatedFields).eq('id', id).then(() => {}).catch(err => console.warn('Supabase updateFaculty err:', err));
   };
 
   const deleteFaculty = (id) => {
     setFaculty(prev => prev.filter(f => f.id !== id));
+    supabase.from('faculty').delete().eq('id', id).then(() => {}).catch(err => console.warn('Supabase deleteFaculty err:', err));
   };
 
   // --- CLUB INFO & STATS ACTIONS ---
