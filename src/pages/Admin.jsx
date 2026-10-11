@@ -1,11 +1,11 @@
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Calendar, Clock, MapPin, Users, Activity, Plus, Edit3, Trash2, 
   CheckCircle, ArrowRightLeft, Sparkles, Download, Upload, RotateCcw, 
   Search, ExternalLink, GraduationCap, FolderGit2, Settings, ShieldCheck,
   Check, Mail, Globe, Map, Lock, LogOut, Eye, EyeOff, AlertCircle, ArrowLeft, Key, MessageSquare,
-  FileSpreadsheet, UserCheck, Filter
+  FileSpreadsheet, UserCheck, Filter, Menu, LayoutDashboard, ClipboardList, ChevronRight
 } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import '../styles/Admin.css';
@@ -55,6 +55,8 @@ const Admin = () => {
   const [securityEmail, setSecurityEmail] = useState(adminCredentials?.email || 'admin@srmist.edu.in');
   const [securityPassword, setSecurityPassword] = useState(adminCredentials?.password || 'admin');
 
+  // SRM Portal Layout State
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState('events'); // events | registrations | projects | faculty | messages | settings
   const [eventFilter, setEventFilter] = useState('all'); // all | upcoming | past
   const [projectStatusFilter, setProjectStatusFilter] = useState('all'); // all | Ongoing | Completed
@@ -62,6 +64,38 @@ const Admin = () => {
   const [selectedRegEventFilter, setSelectedRegEventFilter] = useState('all'); // all | eventId
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Live Portal Clock (Format matches reference screenshot: Sun 11-Oct-2026 09:36:32)
+  const [currentTime, setCurrentTime] = useState(() => {
+    const d = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = days[d.getDay()];
+    const date = String(d.getDate()).padStart(2, '0');
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const mins = String(d.getMinutes()).padStart(2, '0');
+    const secs = String(d.getSeconds()).padStart(2, '0');
+    return `${day} ${date}-${month}-${year} ${hours}:${mins}:${secs}`;
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const d = new Date();
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const day = days[d.getDay()];
+      const date = String(d.getDate()).padStart(2, '0');
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const mins = String(d.getMinutes()).padStart(2, '0');
+      const secs = String(d.getSeconds()).padStart(2, '0');
+      setCurrentTime(`${day} ${date}-${month}-${year} ${hours}:${mins}:${secs}`);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Modal States
   const [eventModalOpen, setEventModalOpen] = useState(false);
@@ -491,12 +525,13 @@ const Admin = () => {
     return (
       <div className="admin-login-wrapper">
         <div className="admin-login-card">
-          <div className="login-header-icon">
-            <Lock size={32} />
+          <div className="login-header-emblem">SRM</div>
+          <h2 className="login-title">SRM Student Portal</h2>
+          <div style={{ textAlign: 'center', fontSize: '0.86rem', color: '#1c4482', fontWeight: 700, marginBottom: '0.35rem' }}>
+            Faculty of Engineering and Technology, Kattankulathur
           </div>
-          <h2 className="login-title">Admin Portal Sign In</h2>
           <p className="login-subtitle">
-            Restricted access. Please enter your administrator email and password to manage the portal.
+            Geospatial Computing Research Vertical • Admin Authentication
           </p>
 
           {loginError && (
@@ -543,10 +578,10 @@ const Admin = () => {
 
             <button 
               type="submit" 
-              className="admin-btn admin-btn-primary" 
-              style={{ width: '100%', padding: '0.85rem', fontSize: '1rem', marginTop: '1.25rem' }}
+              className="srm-btn-primary" 
+              style={{ width: '100%', padding: '0.8rem', fontSize: '0.98rem', marginTop: '1.25rem', justifyContent: 'center' }}
             >
-              <ShieldCheck size={18} /> Sign In to Admin Portal
+              <ShieldCheck size={18} /> Sign In to SRM Portal
             </button>
           </form>
 
@@ -568,7 +603,7 @@ const Admin = () => {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '1.75rem' }}>
-            <Link to="/" style={{ color: '#64748b', fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
+            <Link to="/" style={{ color: '#64748b', fontSize: '0.88rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
               <ArrowLeft size={16} /> Return to Public Website
             </Link>
           </div>
@@ -587,216 +622,248 @@ const Admin = () => {
   }
 
   return (
-    <div className="admin-page">
-      <div className="container">
-        
-        {/* Admin Header Card */}
-        <div className="admin-header-card">
-          <div className="admin-header-top">
+    <div className="srm-portal-wrapper">
+      {/* Top Navigation Bar (sp.srmist.edu.in style) */}
+      <header className="srm-topbar">
+        <div className="srm-topbar-left">
+          <button 
+            type="button" 
+            className="srm-hamburger-btn" 
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            title="Toggle Sidebar"
+          >
+            <Menu size={20} />
+          </button>
+
+          <div className="srm-logo-block">
+            <div className="srm-emblem-badge">SRM</div>
+            <div className="srm-portal-label">
+              <span className="srm-brand-title">SRM</span>
+              <span className="srm-brand-subtitle">Geospatial Research Vertical</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="srm-topbar-center">
+          <span className="srm-dept-heading">Faculty of Engineering and Technology, Kattankulathur</span>
+        </div>
+
+        <div className="srm-topbar-right">
+          <Link to="/" className="srm-topbar-link" target="_blank" rel="noopener noreferrer" title="View Public Website">
+            <ExternalLink size={14} /> <span>View Site</span>
+          </Link>
+          <button className="srm-topbar-link" onClick={exportDataJSON} title="Download JSON Backup">
+            <Download size={14} /> <span>Export JSON</span>
+          </button>
+          <label htmlFor={fileInputId} className="srm-topbar-link" style={{ cursor: 'pointer' }} title="Import JSON backup">
+            <Upload size={14} /> <span>Import</span>
+          </label>
+          <input 
+            id={fileInputId} 
+            type="file" 
+            accept=".json" 
+            onChange={handleImportFile} 
+            style={{ display: 'none' }} 
+          />
+          <button className="srm-topbar-link" onClick={handleReset} title="Reset Defaults">
+            <RotateCcw size={14} /> <span>Reset</span>
+          </button>
+          <button className="srm-logout-btn" onClick={handleLogout} title="Sign Out of Portal">
+            <LogOut size={16} /> <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Body: Left Sidebar + Main Viewport */}
+      <div className="srm-portal-body">
+        {/* Left Sidebar */}
+        <aside className={`srm-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+          <nav className="srm-sidebar-nav">
+            <button 
+              className={`srm-nav-item ${activeTab === 'events' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('events'); setSearchQuery(''); }}
+              title="Events Management"
+            >
+              <Calendar size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Events Management</span>
+              <span className="srm-pill-badge">{upcomingEvents.length + pastEvents.length}</span>
+            </button>
+
+            <button 
+              className={`srm-nav-item ${activeTab === 'registrations' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('registrations'); setSearchQuery(''); }}
+              title="Event Registrations & Live Excel Export"
+            >
+              <ClipboardList size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Event Registrations</span>
+              <span className="srm-pill-badge highlight">{registrations.length}</span>
+            </button>
+
+            <button 
+              className={`srm-nav-item ${activeTab === 'projects' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('projects'); setSearchQuery(''); }}
+              title="Research Projects"
+            >
+              <FolderGit2 size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Research Projects</span>
+              <span className="srm-pill-badge">{projects.length}</span>
+            </button>
+
+            <button 
+              className={`srm-nav-item ${activeTab === 'faculty' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('faculty'); setSearchQuery(''); }}
+              title="Faculty Mentors"
+            >
+              <GraduationCap size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Faculty Mentors</span>
+              <span className="srm-pill-badge">{faculty.length}</span>
+            </button>
+
+            <button 
+              className={`srm-nav-item ${activeTab === 'messages' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('messages'); setSearchQuery(''); }}
+              title="Inquiries & Comments"
+            >
+              <MessageSquare size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Inquiries & Feedback</span>
+              {unreadCount > 0 && <span className="srm-pill-badge alert">{unreadCount}</span>}
+            </button>
+
+            <button 
+              className={`srm-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('settings'); setSearchQuery(''); }}
+              title="Vertical Settings"
+            >
+              <Settings size={18} className="srm-nav-icon" />
+              <span className="srm-nav-text">Vertical Settings</span>
+            </button>
+          </nav>
+
+          {/* User Info Bottom Card (Matches screenshot layout: RA2411003010387 / ESAKKIMADAN M / Live Clock) */}
+          <div className="srm-user-info-card">
+            <div className="srm-user-regno">RA2411003010387</div>
+            <div className="srm-user-name">ESAKKIMADAN M</div>
+            <div className="srm-user-timestamp">{currentTime}</div>
+          </div>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="srm-main-viewport">
+          {/* Professional Page Header (Title + Subtitle + Single Primary Action) */}
+          <div className="srm-page-header">
             <div>
-              <div className="admin-badge">
-                <ShieldCheck size={16} /> Admin Command Center
+              <div className="srm-breadcrumb">
+                <span>SRMIST Admin</span>
+                <span className="sep">/</span>
+                <span className="current">
+                  {activeTab === 'events' && 'Events'}
+                  {activeTab === 'registrations' && 'Registrations'}
+                  {activeTab === 'projects' && 'Projects'}
+                  {activeTab === 'faculty' && 'Faculty'}
+                  {activeTab === 'messages' && 'Inquiries'}
+                  {activeTab === 'settings' && 'Settings'}
+                </span>
               </div>
-              <h1 className="admin-title">Geospatial SRM Admin Portal</h1>
-              <p className="admin-subtitle">
-                Manage upcoming events, completed activities, current projects, faculty mentors, and overall club details in real time. Changes immediately update the live website and persist in local storage.
+              <h1 className="srm-page-title">
+                {activeTab === 'events' && 'Events Management'}
+                {activeTab === 'registrations' && 'Event Registrations & Live Database'}
+                {activeTab === 'projects' && 'Research Projects & Initiatives'}
+                {activeTab === 'faculty' && 'Faculty Mentors & Advisory Panel'}
+                {activeTab === 'messages' && 'Student Inquiries & Feedback'}
+                {activeTab === 'settings' && 'Vertical Configuration & Settings'}
+              </h1>
+              <p className="srm-page-subtitle">
+                {activeTab === 'events' && 'Create, edit, and organize departmental workshops, hackathons, and activities.'}
+                {activeTab === 'registrations' && 'Live roster of registered SRMIST students with instant Microsoft Excel export.'}
+                {activeTab === 'projects' && 'Manage department research projects, domains, faculty mentors, and student teams.'}
+                {activeTab === 'faculty' && 'Manage faculty mentors, department affiliations, and research areas.'}
+                {activeTab === 'messages' && 'Review queries and comments submitted through the public website contact modal.'}
+                {activeTab === 'settings' && 'Configure club identity, vision, mission, homepage statistics, and security credentials.'}
               </p>
             </div>
-            
-            <div className="admin-header-actions">
-              <Link to="/" className="admin-btn admin-btn-outline-light" target="_blank" rel="noopener noreferrer">
-                <ExternalLink size={16} /> View Live Site
-              </Link>
-              <button className="admin-btn admin-btn-outline-light" onClick={exportDataJSON} title="Download JSON Backup">
-                <Download size={16} /> Export JSON
-              </button>
-              <label htmlFor={fileInputId} className="admin-btn admin-btn-outline-light" style={{ cursor: 'pointer' }} title="Import JSON backup">
-                <Upload size={16} /> Import JSON
-              </label>
-              <input 
-                id={fileInputId} 
-                type="file" 
-                accept=".json" 
-                onChange={handleImportFile} 
-                style={{ display: 'none' }} 
-              />
-              <button className="admin-btn admin-btn-danger-outline" onClick={handleReset} title="Reset to initial data">
-                <RotateCcw size={16} /> Reset Defaults
-              </button>
-              <button className="admin-btn admin-btn-danger-outline" onClick={handleLogout} title="Sign Out of Admin Portal">
-                <LogOut size={16} /> Log Out
-              </button>
+
+            <div className="srm-header-actions">
+              {activeTab === 'events' && (
+                <button className="srm-btn-primary" onClick={handleOpenAddEvent}>
+                  <Plus size={16} /> Create Event
+                </button>
+              )}
+              {activeTab === 'registrations' && (
+                <button 
+                  type="button"
+                  className="srm-btn-excel"
+                  onClick={() => {
+                    exportRegistrationsExcel(selectedRegEventFilter === 'all' ? null : selectedRegEventFilter);
+                    showToast('Live Excel sheet downloaded successfully!');
+                  }}
+                  disabled={filteredRegistrations.length === 0}
+                  style={{ opacity: filteredRegistrations.length === 0 ? 0.6 : 1 }}
+                  title="Download as Microsoft Excel (.xlsx) file"
+                >
+                  <FileSpreadsheet size={16} /> Download Excel (.xlsx)
+                </button>
+              )}
+              {activeTab === 'projects' && (
+                <button className="srm-btn-primary" onClick={handleOpenAddProject}>
+                  <Plus size={16} /> Create Project
+                </button>
+              )}
+              {activeTab === 'faculty' && (
+                <button className="srm-btn-primary" onClick={handleOpenAddFaculty}>
+                  <Plus size={16} /> Add Faculty Member
+                </button>
+              )}
             </div>
           </div>
-
-          {/* Quick Stats Counter */}
-          <div className="admin-stats-row">
-            <div className="admin-stat-pill">
-              <div className="stat-icon-wrapper">
-                <Calendar size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{upcomingEvents.length}</div>
-                <div className="stat-desc">Upcoming Events</div>
-              </div>
-            </div>
-
-            <div className="admin-stat-pill">
-              <div className="stat-icon-wrapper">
-                <CheckCircle size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{pastEvents.length}</div>
-                <div className="stat-desc">Completed Events</div>
-              </div>
-            </div>
-
-            <div className="admin-stat-pill">
-              <div className="stat-icon-wrapper">
-                <FolderGit2 size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{projects.length}</div>
-                <div className="stat-desc">Active Projects</div>
-              </div>
-            </div>
-
-            <div className="admin-stat-pill">
-              <div className="stat-icon-wrapper">
-                <GraduationCap size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{faculty.length}</div>
-                <div className="stat-desc">Faculty Mentors</div>
-              </div>
-            </div>
-
-            <div className="admin-stat-pill">
-              <div className="stat-icon-wrapper">
-                <MessageSquare size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{messages.length}</div>
-                <div className="stat-desc">Inquiries ({unreadCount} new)</div>
-              </div>
-            </div>
-
-            <div className="admin-stat-pill" onClick={() => { setActiveTab('registrations'); setSearchQuery(''); }} style={{ cursor: 'pointer' }} title="Click to view registrations">
-              <div className="stat-icon-wrapper" style={{ background: '#ecfdf5', color: '#059669' }}>
-                <Users size={22} />
-              </div>
-              <div className="stat-info">
-                <div className="stat-num">{registrations.length}</div>
-                <div className="stat-desc">Registrations</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="admin-tabs-nav">
-          <button 
-            className={`admin-tab-btn ${activeTab === 'events' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('events'); setSearchQuery(''); }}
-          >
-            <Calendar size={18} />
-            Events (Upcoming & Done)
-            <span className="tab-count">{upcomingEvents.length + pastEvents.length}</span>
-          </button>
-
-          <button 
-            className={`admin-tab-btn ${activeTab === 'registrations' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('registrations'); setSearchQuery(''); }}
-          >
-            <Users size={18} />
-            Registrations & Live Excel
-            <span className="tab-count" style={{ backgroundColor: '#10b981', color: '#ffffff', fontWeight: 800 }}>
-              {registrations.length}
-            </span>
-          </button>
-
-          <button 
-            className={`admin-tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('projects'); setSearchQuery(''); }}
-          >
-            <FolderGit2 size={18} />
-            Projects
-            <span className="tab-count">{projects.length}</span>
-          </button>
-
-          <button 
-            className={`admin-tab-btn ${activeTab === 'faculty' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('faculty'); setSearchQuery(''); }}
-          >
-            <GraduationCap size={18} />
-            Faculty Mentors
-            <span className="tab-count">{faculty.length}</span>
-          </button>
-
-          <button 
-            className={`admin-tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('messages'); setSearchQuery(''); }}
-          >
-            <MessageSquare size={18} />
-            Inquiries & Comments
-            <span 
-              className="tab-count" 
-              style={unreadCount > 0 ? { backgroundColor: '#20c997', color: '#0a192f', fontWeight: 800 } : {}}
-            >
-              {messages.length} {unreadCount > 0 ? `(${unreadCount} new)` : ''}
-            </span>
-          </button>
-
-          <button 
-            className={`admin-tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('settings'); setSearchQuery(''); }}
-          >
-            <Settings size={18} />
-            Club Info & Everything
-          </button>
-        </div>
 
         {/* ================= EVENTS TAB ================= */}
         {activeTab === 'events' && (
-          <div>
-            <div className="admin-toolbar">
-              <div className="toolbar-left">
-                <div className="search-box">
-                  <Search size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="Search events by title, description, venue..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+          <div className="srm-card">
+            <div className="srm-card-header">
+              <div className="srm-card-header-title">
+                <Calendar size={18} />
+                <span>Events Directory</span>
+              </div>
+              <span className="srm-pill-badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>
+                {upcomingEvents.length + pastEvents.length} Total
+              </span>
+            </div>
 
-                <div className="subfilter-pills">
-                  <button 
-                    className={`subfilter-pill ${eventFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setEventFilter('all')}
-                  >
-                    All ({upcomingEvents.length + pastEvents.length})
-                  </button>
-                  <button 
-                    className={`subfilter-pill ${eventFilter === 'upcoming' ? 'active' : ''}`}
-                    onClick={() => setEventFilter('upcoming')}
-                  >
-                    Upcoming ({upcomingEvents.length})
-                  </button>
-                  <button 
-                    className={`subfilter-pill ${eventFilter === 'past' ? 'active' : ''}`}
-                    onClick={() => setEventFilter('past')}
-                  >
-                    Completed / Done ({pastEvents.length})
-                  </button>
+            <div className="srm-card-body">
+              <div className="srm-toolbar">
+                <div className="toolbar-left">
+                  <div className="srm-search-input-wrap">
+                    <Search size={16} />
+                    <input 
+                      type="text" 
+                      placeholder="Search events by title, description, venue..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="subfilter-pills">
+                    <button 
+                      className={`subfilter-pill ${eventFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setEventFilter('all')}
+                    >
+                      All ({upcomingEvents.length + pastEvents.length})
+                    </button>
+                    <button 
+                      className={`subfilter-pill ${eventFilter === 'upcoming' ? 'active' : ''}`}
+                      onClick={() => setEventFilter('upcoming')}
+                    >
+                      Upcoming ({upcomingEvents.length})
+                    </button>
+                    <button 
+                      className={`subfilter-pill ${eventFilter === 'past' ? 'active' : ''}`}
+                      onClick={() => setEventFilter('past')}
+                    >
+                      Completed ({pastEvents.length})
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <button className="btn-create" onClick={handleOpenAddEvent}>
-                <Plus size={18} /> Create Event
-              </button>
-            </div>
 
             <div className="admin-card-grid">
               {filteredEvents.map(evt => (
@@ -804,7 +871,7 @@ const Admin = () => {
                   <div className="item-thumb-wrapper">
                     <img src={evt.image || "https://images.unsplash.com/photo-1524661135-423995f22d0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} alt={evt.title} className="item-thumb" />
                     <span className={`status-badge-chip ${evt.isUpcoming ? 'upcoming' : 'done'}`}>
-                      {evt.isUpcoming ? 'Upcoming' : 'Completed / Done'}
+                      {evt.isUpcoming ? 'Upcoming' : 'Completed'}
                     </span>
                   </div>
 
@@ -813,7 +880,7 @@ const Admin = () => {
                     <div className="item-meta-list">
                       {evt.date && (
                         <div className="meta-row">
-                          <Calendar size={15} color="#20c997" /> <span>{evt.date}</span>
+                          <Calendar size={15} color="#205493" /> <span>{evt.date}</span>
                         </div>
                       )}
                       {evt.time && (
@@ -823,7 +890,7 @@ const Admin = () => {
                       )}
                       {evt.venue && (
                         <div className="meta-row">
-                          <MapPin size={15} color="#20c997" /> <span>{evt.venue}</span>
+                          <MapPin size={15} color="#ef4444" /> <span>{evt.venue}</span>
                         </div>
                       )}
                     </div>
@@ -832,31 +899,31 @@ const Admin = () => {
                     {/* Registration Status & Attendee Count */}
                     {evt.isUpcoming && (
                       <div style={{
-                        marginTop: '0.75rem',
-                        marginBottom: '0.5rem',
-                        padding: '0.65rem 0.85rem',
+                        marginTop: '0.5rem',
+                        marginBottom: '0.65rem',
+                        padding: '0.55rem 0.75rem',
                         background: '#f8fafc',
-                        borderRadius: '8px',
+                        borderRadius: '6px',
                         border: '1px solid #e2e8f0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         flexWrap: 'wrap',
-                        gap: '0.5rem'
+                        gap: '0.4rem'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                           <span style={{
-                            fontSize: '0.78rem',
+                            fontSize: '0.74rem',
                             fontWeight: 700,
-                            padding: '0.2rem 0.55rem',
-                            borderRadius: '12px',
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '10px',
                             background: evt.registrationType === 'link' ? '#eff6ff' : '#ecfdf5',
                             color: evt.registrationType === 'link' ? '#1d4ed8' : '#047857',
                             border: `1px solid ${evt.registrationType === 'link' ? '#bfdbfe' : '#a7f3d0'}`
                           }}>
                             {evt.registrationType === 'link' ? 'External Link' : 'On-Site Form'}
                           </span>
-                          <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
                             {registrations.filter(r => r.eventId === evt.id).length} Registered
                           </span>
                         </div>
@@ -866,22 +933,11 @@ const Admin = () => {
                             <button
                               type="button"
                               onClick={() => exportRegistrationsExcel(evt.id)}
-                              style={{
-                                fontSize: '0.76rem',
-                                fontWeight: 600,
-                                background: '#10b981',
-                                border: 'none',
-                                color: '#ffffff',
-                                padding: '0.3rem 0.65rem',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.3rem'
-                              }}
+                              className="srm-btn-excel"
+                              style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem' }}
                               title="Download registered students Excel sheet (.xlsx) for this event"
                             >
-                              <Download size={13} /> Excel (.xlsx)
+                              <Download size={12} /> Excel
                             </button>
                             <button
                               type="button"
@@ -889,22 +945,11 @@ const Admin = () => {
                                 setSelectedRegEventFilter(evt.id);
                                 setActiveTab('registrations');
                               }}
-                              style={{
-                                fontSize: '0.76rem',
-                                fontWeight: 600,
-                                background: '#0a192f',
-                                border: 'none',
-                                color: '#ffffff',
-                                padding: '0.3rem 0.65rem',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.3rem'
-                              }}
+                              className="srm-btn-outline"
+                              style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem' }}
                               title="View registered attendees"
                             >
-                              <Eye size={13} /> View
+                              <Eye size={12} /> View
                             </button>
                           </div>
                         )}
@@ -917,24 +962,24 @@ const Admin = () => {
                         onClick={() => handleToggleEventStatus(evt.id, evt.title)}
                         title={evt.isUpcoming ? "Mark event as Completed/Done" : "Mark event as Upcoming"}
                       >
-                        <ArrowRightLeft size={14} />
-                        {evt.isUpcoming ? 'Mark as Done' : 'Move to Upcoming'}
+                        <ArrowRightLeft size={13} />
+                        {evt.isUpcoming ? 'Mark Done' : 'Set Upcoming'}
                       </button>
 
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button 
                           className="btn-icon-action" 
                           onClick={() => handleOpenEditEvent(evt, evt.isUpcoming)}
                           title="Edit Event"
                         >
-                          <Edit3 size={16} />
+                          <Edit3 size={15} />
                         </button>
                         <button 
                           className="btn-icon-action delete" 
                           onClick={() => handleDeleteEvent(evt.id, evt.isUpcoming, evt.title)}
                           title="Delete Event"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
@@ -945,22 +990,34 @@ const Admin = () => {
               {filteredEvents.length === 0 && (
                 <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: '#fff', borderRadius: '12px' }}>
                   <p style={{ color: '#64748b', fontSize: '1.1rem' }}>No events found matching your criteria.</p>
-                  <button className="btn-create" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddEvent}>
-                    <Plus size={18} /> Create First Event
+                  <button className="srm-btn-primary" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddEvent}>
+                    <Plus size={16} /> Create First Event
                   </button>
                 </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ================= REGISTRATIONS & LIVE EXCEL TAB ================= */}
-        {activeTab === 'registrations' && (
-          <div>
-            <div className="admin-toolbar">
+      {/* ================= REGISTRATIONS & LIVE EXCEL TAB ================= */}
+      {activeTab === 'registrations' && (
+        <div className="srm-card">
+          <div className="srm-card-header">
+            <div className="srm-card-header-title">
+              <ClipboardList size={18} />
+              <span>Live Student Registrations Database</span>
+            </div>
+            <span className="srm-pill-badge highlight">
+              {registrations.length} Total Registered
+            </span>
+          </div>
+
+          <div className="srm-card-body">
+            <div className="srm-toolbar">
               <div className="toolbar-left">
-                <div className="search-box">
-                  <Search size={18} />
+                <div className="srm-search-input-wrap">
+                  <Search size={16} />
                   <input 
                     type="text" 
                     placeholder="Search by student name, reg no, SRMIST email, department..." 
@@ -969,11 +1026,11 @@ const Admin = () => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Filter size={16} color="#64748b" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <Filter size={15} color="#64748b" />
                   <select
                     className="form-control"
-                    style={{ minWidth: '220px', padding: '0.5rem 0.8rem', fontSize: '0.88rem', background: '#f8fafc' }}
+                    style={{ minWidth: '220px', padding: '0.45rem 0.8rem', fontSize: '0.86rem', background: '#ffffff' }}
                     value={selectedRegEventFilter}
                     onChange={(e) => setSelectedRegEventFilter(e.target.value)}
                   >
@@ -998,32 +1055,17 @@ const Admin = () => {
                     onClick={() => setSelectedRegEventFilter('all')}
                     style={{ fontSize: '0.8rem', cursor: 'pointer' }}
                   >
-                    Clear Event Filter ✕
+                    Clear Filter ✕
                   </button>
                 )}
               </div>
-
-              <button 
-                type="button"
-                className="admin-btn-success"
-                onClick={() => {
-                  exportRegistrationsExcel(selectedRegEventFilter === 'all' ? null : selectedRegEventFilter);
-                  showToast('Live Excel sheet downloaded successfully!');
-                }}
-                disabled={filteredRegistrations.length === 0}
-                style={{ opacity: filteredRegistrations.length === 0 ? 0.6 : 1 }}
-                title="Download as Microsoft Excel (.xlsx) file"
-              >
-                <FileSpreadsheet size={18} />
-                Download Live Excel (.xlsx)
-              </button>
             </div>
 
             {/* Quick summary strip */}
             <div style={{ 
               background: '#f8fafc', 
               padding: '0.75rem 1.25rem', 
-              borderRadius: '8px', 
+              borderRadius: '6px', 
               border: '1px solid #e2e8f0', 
               marginBottom: '1rem', 
               display: 'flex', 
@@ -1033,13 +1075,13 @@ const Admin = () => {
               gap: '0.5rem'
             }}>
               <div style={{ fontSize: '0.88rem', color: '#475569' }}>
-                Showing <strong>{filteredRegistrations.length}</strong> of <strong>{registrations.length}</strong> total student registrations
+                Showing <strong>{filteredRegistrations.length}</strong> of <strong>{registrations.length}</strong> total registrations
                 {selectedRegEventFilter !== 'all' && (
                   <span> for event: <em>{upcomingEvents.find(e => e.id === selectedRegEventFilter)?.title || pastEvents.find(e => e.id === selectedRegEventFilter)?.title}</em></span>
                 )}
               </div>
               <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 600 }}>
-                ✓ Instant real-time database with SRMIST email verification
+                ✓ Real-time database synced with SRMIST email verification
               </div>
             </div>
 
@@ -1068,7 +1110,7 @@ const Admin = () => {
                         <span className="badge-reg-id">{reg.id}</span>
                       </td>
                       <td>
-                        <strong style={{ color: '#0a192f', fontSize: '0.88rem' }}>{reg.eventTitle}</strong>
+                        <strong style={{ color: '#1c4482', fontSize: '0.88rem' }}>{reg.eventTitle}</strong>
                       </td>
                       <td style={{ fontWeight: 600, color: '#1e293b' }}>
                         {reg.fullName}
@@ -1103,7 +1145,7 @@ const Admin = () => {
                           }}
                           title="Delete Registration"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </td>
                     </tr>
@@ -1118,21 +1160,33 @@ const Admin = () => {
                     {searchQuery ? 'No registrations match your search criteria.' : 'No registrations received yet.'}
                   </p>
                   <p style={{ color: '#94a3b8', fontSize: '0.92rem', marginTop: '0.35rem', maxWidth: '520px', margin: '0.35rem auto 0' }}>
-                    When students register for upcoming events through the on-site registration modal on the public website, their submissions will automatically appear here in live time and can be exported as an Excel file.
+                    When students register for upcoming events through the on-site registration form on the public website, their submissions will automatically appear here in live time and can be exported as an Excel file.
                   </p>
                 </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ================= PROJECTS TAB ================= */}
-        {activeTab === 'projects' && (
-          <div>
-            <div className="admin-toolbar">
+      {/* ================= PROJECTS TAB ================= */}
+      {activeTab === 'projects' && (
+        <div className="srm-card">
+          <div className="srm-card-header">
+            <div className="srm-card-header-title">
+              <FolderGit2 size={18} />
+              <span>Research Projects Directory</span>
+            </div>
+            <span className="srm-pill-badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>
+              {projects.length} Total
+            </span>
+          </div>
+
+          <div className="srm-card-body">
+            <div className="srm-toolbar">
               <div className="toolbar-left">
-                <div className="search-box">
-                  <Search size={18} />
+                <div className="srm-search-input-wrap">
+                  <Search size={16} />
                   <input 
                     type="text" 
                     placeholder="Search projects by title, domain, mentor..." 
@@ -1162,10 +1216,6 @@ const Admin = () => {
                   </button>
                 </div>
               </div>
-
-              <button className="btn-create" onClick={handleOpenAddProject}>
-                <Plus size={18} /> Create Project
-              </button>
             </div>
 
             <div className="admin-card-grid">
@@ -1179,18 +1229,18 @@ const Admin = () => {
                   </div>
 
                   <div className="item-body">
-                    <div style={{ color: '#20c997', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
+                    <div style={{ color: '#205493', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
                       {proj.domain}
                     </div>
                     <h3 className="item-title">{proj.title}</h3>
                     
                     <div className="item-meta-list">
                       <div className="meta-row">
-                        <Activity size={15} color="#20c997" />
+                        <Activity size={15} color="#205493" />
                         <span><strong>Mentor:</strong> {proj.facultyMentor}</span>
                       </div>
                       <div className="meta-row">
-                        <Users size={15} color="#20c997" />
+                        <Users size={15} color="#059669" />
                         <span><strong>Team:</strong> {proj.studentTeam}</span>
                       </div>
                     </div>
@@ -1206,23 +1256,23 @@ const Admin = () => {
                     )}
 
                     <div className="item-actions">
-                      <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                         ID: {proj.id}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button 
                           className="btn-icon-action" 
                           onClick={() => handleOpenEditProject(proj)}
                           title="Edit Project"
                         >
-                          <Edit3 size={16} />
+                          <Edit3 size={15} />
                         </button>
                         <button 
                           className="btn-icon-action delete" 
                           onClick={() => handleDeleteProject(proj.id, proj.title)}
                           title="Delete Project"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
@@ -1233,22 +1283,34 @@ const Admin = () => {
               {filteredProjects.length === 0 && (
                 <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: '#fff', borderRadius: '12px' }}>
                   <p style={{ color: '#64748b', fontSize: '1.1rem' }}>No projects found.</p>
-                  <button className="btn-create" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddProject}>
-                    <Plus size={18} /> Add New Project
+                  <button className="srm-btn-primary" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddProject}>
+                    <Plus size={16} /> Add First Project
                   </button>
                 </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ================= FACULTY TAB ================= */}
-        {activeTab === 'faculty' && (
-          <div>
-            <div className="admin-toolbar">
+      {/* ================= FACULTY TAB ================= */}
+      {activeTab === 'faculty' && (
+        <div className="srm-card">
+          <div className="srm-card-header">
+            <div className="srm-card-header-title">
+              <GraduationCap size={18} />
+              <span>Faculty Mentors & Advisory Panel</span>
+            </div>
+            <span className="srm-pill-badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#ffffff' }}>
+              {faculty.length} Mentors
+            </span>
+          </div>
+
+          <div className="srm-card-body">
+            <div className="srm-toolbar">
               <div className="toolbar-left">
-                <div className="search-box">
-                  <Search size={18} />
+                <div className="srm-search-input-wrap">
+                  <Search size={16} />
                   <input 
                     type="text" 
                     placeholder="Search faculty by name, department, expertise..." 
@@ -1257,10 +1319,6 @@ const Admin = () => {
                   />
                 </div>
               </div>
-
-              <button className="btn-create" onClick={handleOpenAddFaculty}>
-                <Plus size={18} /> Add Faculty Member
-              </button>
             </div>
 
             <div className="admin-card-grid">
@@ -1279,48 +1337,48 @@ const Admin = () => {
                     <div className="item-meta-list">
                       {fac.email && (
                         <div className="meta-row">
-                          <Mail size={15} color="#20c997" />
+                          <Mail size={15} color="#205493" />
                           <span>{fac.email}</span>
                         </div>
                       )}
                       {fac.domain && (
                         <div className="meta-row">
-                          <Globe size={15} color="#20c997" />
+                          <Globe size={15} color="#059669" />
                           <span><strong>Domain:</strong> {fac.domain}</span>
                         </div>
                       )}
                       {fac.office && (
                         <div className="meta-row">
-                          <MapPin size={15} color="#20c997" />
+                          <MapPin size={15} color="#64748b" />
                           <span><strong>Office:</strong> {fac.office}</span>
                         </div>
                       )}
                     </div>
 
                     {fac.bio && (
-                      <p className="item-desc" style={{ marginTop: '0.5rem' }}>
+                      <p className="item-desc" style={{ marginTop: '0.4rem' }}>
                         {fac.bio}
                       </p>
                     )}
 
                     <div className="item-actions">
-                      <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                         ID: {fac.id}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
                         <button 
                           className="btn-icon-action" 
                           onClick={() => handleOpenEditFaculty(fac)}
                           title="Edit Faculty"
                         >
-                          <Edit3 size={16} />
+                          <Edit3 size={15} />
                         </button>
                         <button 
                           className="btn-icon-action delete" 
                           onClick={() => handleDeleteFaculty(fac.id, fac.name)}
                           title="Delete Faculty"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </div>
@@ -1331,21 +1389,35 @@ const Admin = () => {
               {filteredFaculty.length === 0 && (
                 <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', background: '#fff', borderRadius: '12px' }}>
                   <p style={{ color: '#64748b', fontSize: '1.1rem' }}>No faculty profiles found.</p>
-                  <button className="btn-create" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddFaculty}>
-                    <Plus size={18} /> Add Faculty Member
+                  <button className="srm-btn-primary" style={{ margin: '1rem auto 0' }} onClick={handleOpenAddFaculty}>
+                    <Plus size={16} /> Add First Faculty Member
                   </button>
                 </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ================= MESSAGES & INQUIRIES TAB ================= */}
-        {activeTab === 'messages' && (
-          <div>
-            <div className="admin-toolbar">
+      {/* ================= MESSAGES & INQUIRIES TAB ================= */}
+      {activeTab === 'messages' && (
+        <div className="srm-card">
+          <div className="srm-card-header">
+            <div className="srm-card-header-title">
+              <MessageSquare size={18} />
+              <span>Student Inquiries & Public Feedback</span>
+            </div>
+            {unreadCount > 0 ? (
+              <span className="srm-pill-badge alert">{unreadCount} Unread</span>
+            ) : (
+              <span className="srm-pill-badge">All caught up</span>
+            )}
+          </div>
+
+          <div className="srm-card-body">
+            <div className="srm-toolbar">
               <div className="toolbar-left">
-                <div className="search-box">
+                <div className="srm-search-input-wrap">
                   <Search size={18} />
                   <input 
                     type="text" 
@@ -1385,22 +1457,22 @@ const Admin = () => {
                   className="admin-item-card"
                   style={{
                     padding: '1.75rem',
-                    borderLeft: msg.read ? '4px solid #cbd5e1' : '4px solid #20c997',
-                    backgroundColor: msg.read ? '#ffffff' : '#f0fdfa',
+                    borderLeft: msg.read ? '4px solid #cbd5e1' : '4px solid #205493',
+                    backgroundColor: msg.read ? '#ffffff' : '#f0f7ff',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0a192f', margin: 0 }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1c4482', margin: 0 }}>
                           {msg.name}
                         </h3>
                         <span style={{ 
                           fontSize: '0.78rem', 
                           fontWeight: 700, 
-                          color: '#065f46', 
-                          background: '#d1fae5', 
+                          color: '#1c4482', 
+                          background: '#e6f0fa', 
                           padding: '0.25rem 0.65rem', 
                           borderRadius: '12px',
                           display: 'inline-flex',
@@ -1414,7 +1486,7 @@ const Admin = () => {
                             fontSize: '0.72rem', 
                             fontWeight: 800, 
                             color: '#ffffff', 
-                            background: '#20c997', 
+                            background: '#d9534f', 
                             padding: '0.2rem 0.55rem', 
                             borderRadius: '10px' 
                           }}>
@@ -1440,7 +1512,7 @@ const Admin = () => {
                       </button>
                       <a 
                         href={`mailto:${msg.email}?subject=Response from Geospatial Computing Research Vertical SRMIST&body=Hi ${msg.name},%0D%0A%0D%0AThank you for contacting the Geospatial Computing Research Vertical regarding:%0D%0A"${msg.comment}"%0D%0A%0D%0A`}
-                        className="admin-btn admin-btn-primary"
+                        className="srm-btn-primary"
                         style={{ fontSize: '0.85rem', padding: '0.45rem 0.9rem' }}
                       >
                         <Mail size={15} /> Reply via Email
@@ -1486,189 +1558,202 @@ const Admin = () => {
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ================= CLUB INFO & SETTINGS TAB ================= */}
-        {activeTab === 'settings' && (
-          <div className="settings-container">
-            <form onSubmit={handleSaveSettings}>
-              
-              {/* Club Identity Section */}
-              <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
-                <div className="settings-section-header">
-                  <h2 className="settings-section-title">Club Identity & Overview</h2>
-                  <p className="settings-section-desc">Basic names, institution header, and banner descriptions displayed on the Home and About pages.</p>
-                </div>
+      {/* ================= CLUB INFO & SETTINGS TAB ================= */}
+      {activeTab === 'settings' && (
+        <div className="srm-card">
+          <div className="srm-card-header">
+            <div className="srm-card-header-title">
+              <Settings size={18} />
+              <span>Vertical Information & Security Settings</span>
+            </div>
+          </div>
 
-                <div className="form-grid-2">
-                  <div className="form-group">
-                    <label>Club Name</label>
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      value={settingsFormData.name}
-                      onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
-                    />
+          <div className="srm-card-body">
+            <div className="settings-container">
+              <form onSubmit={handleSaveSettings}>
+                
+                {/* Club Identity Section */}
+                <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Vertical Identity & Overview</h2>
+                    <p className="settings-section-desc">Basic names, institution header, and banner descriptions displayed on the Home and About pages.</p>
                   </div>
 
-                  <div className="form-group">
-                    <label>Institution</label>
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      value={settingsFormData.institution}
-                      onChange={(e) => setSettingsFormData({ ...settingsFormData, institution: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Tagline</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={settingsFormData.tagline}
-                    onChange={(e) => setSettingsFormData({ ...settingsFormData, tagline: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Hero Description (Home Page Header)</label>
-                  <textarea 
-                    className="form-control" 
-                    rows={3}
-                    value={settingsFormData.heroDescription}
-                    onChange={(e) => setSettingsFormData({ ...settingsFormData, heroDescription: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>About Club Description (About Page)</label>
-                  <textarea 
-                    className="form-control" 
-                    rows={4}
-                    value={settingsFormData.aboutDescription}
-                    onChange={(e) => setSettingsFormData({ ...settingsFormData, aboutDescription: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Vision & Mission */}
-              <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
-                <div className="settings-section-header">
-                  <h2 className="settings-section-title">Vision & Mission</h2>
-                  <p className="settings-section-desc">Strategic objectives highlighted across the site.</p>
-                </div>
-
-                <div className="form-group">
-                  <label>Club Vision</label>
-                  <textarea 
-                    className="form-control" 
-                    rows={3}
-                    value={settingsFormData.vision}
-                    onChange={(e) => setSettingsFormData({ ...settingsFormData, vision: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Club Mission</label>
-                  <textarea 
-                    className="form-control" 
-                    rows={3}
-                    value={settingsFormData.mission}
-                    onChange={(e) => setSettingsFormData({ ...settingsFormData, mission: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Live Statistics Counter Values */}
-              <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
-                <div className="settings-section-header">
-                  <h2 className="settings-section-title">Club Key Statistics</h2>
-                  <p className="settings-section-desc">Numerical stats shown on the Home page banner.</p>
-                </div>
-
-                <div className="stats-editor-grid">
-                  {settingsFormData.stats.map((stat, idx) => (
-                    <div key={idx} className="stat-edit-box">
-                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                        <label>Stat Metric Label</label>
-                        <input 
-                          type="text" 
-                          className="form-control" 
-                          value={stat.label}
-                          onChange={(e) => handleStatChange(idx, 'label', e.target.value)}
-                        />
-                      </div>
-                      <div className="form-group" style={{ marginBottom: 0 }}>
-                        <label>Display Value</label>
-                        <input 
-                          type="text" 
-                          className="form-control" 
-                          value={stat.value}
-                          onChange={(e) => handleStatChange(idx, 'value', e.target.value)}
-                        />
-                      </div>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>Vertical Name</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={settingsFormData.name}
+                        onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
+                      />
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Admin Security & Credentials Section */}
-              <div className="settings-section-card" style={{ marginBottom: '1.5rem', borderLeft: '4px solid #20c997' }}>
-                <div className="settings-section-header">
-                  <h2 className="settings-section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Key size={20} color="#20c997" /> Admin Login & Security Credentials
-                  </h2>
-                  <p className="settings-section-desc">
-                    Customize the administrator email address and password required to unlock this portal at /admin.
-                  </p>
-                </div>
-
-                <div className="form-grid-2">
-                  <div className="form-group">
-                    <label>Administrator Email</label>
-                    <input 
-                      type="email" 
-                      className="form-control" 
-                      value={securityEmail}
-                      onChange={(e) => setSecurityEmail(e.target.value)}
-                    />
+                    <div className="form-group">
+                      <label>Institution</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={settingsFormData.institution}
+                        onChange={(e) => setSettingsFormData({ ...settingsFormData, institution: e.target.value })}
+                      />
+                    </div>
                   </div>
 
                   <div className="form-group">
-                    <label>Administrator Password</label>
+                    <label>Tagline</label>
                     <input 
                       type="text" 
                       className="form-control" 
-                      value={securityPassword}
-                      onChange={(e) => setSecurityPassword(e.target.value)}
+                      value={settingsFormData.tagline}
+                      onChange={(e) => setSettingsFormData({ ...settingsFormData, tagline: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Hero Description (Home Page Header)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows={3}
+                      value={settingsFormData.heroDescription}
+                      onChange={(e) => setSettingsFormData({ ...settingsFormData, heroDescription: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>About Description (About Page)</label>
+                    <textarea 
+                      className="form-control" 
+                      rows={4}
+                      value={settingsFormData.aboutDescription}
+                      onChange={(e) => setSettingsFormData({ ...settingsFormData, aboutDescription: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                  <button 
-                    type="button" 
-                    className="admin-btn admin-btn-primary" 
-                    style={{ fontSize: '0.88rem' }}
-                    onClick={handleSaveSecurityCredentials}
-                  >
-                    <Key size={15} /> Update Admin Credentials
+                {/* Vision & Mission */}
+                <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Vision & Mission</h2>
+                    <p className="settings-section-desc">Strategic objectives highlighted across the site.</p>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Vision Statement</label>
+                    <textarea 
+                      className="form-control" 
+                      rows={3}
+                      value={settingsFormData.vision}
+                      onChange={(e) => setSettingsFormData({ ...settingsFormData, vision: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Mission Statement</label>
+                    <textarea 
+                      className="form-control" 
+                      rows={3}
+                      value={settingsFormData.mission}
+                      onChange={(e) => setSettingsFormData({ ...settingsFormData, mission: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Live Statistics Counter Values */}
+                <div className="settings-section-card" style={{ marginBottom: '1.5rem' }}>
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title">Key Statistics Counter</h2>
+                    <p className="settings-section-desc">Numerical stats shown on the Home page banner.</p>
+                  </div>
+
+                  <div className="stats-editor-grid">
+                    {settingsFormData.stats.map((stat, idx) => (
+                      <div key={idx} className="stat-edit-box">
+                        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                          <label>Stat Metric Label</label>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            value={stat.label}
+                            onChange={(e) => handleStatChange(idx, 'label', e.target.value)}
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                          <label>Display Value</label>
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            value={stat.value}
+                            onChange={(e) => handleStatChange(idx, 'value', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Admin Security & Credentials Section */}
+                <div className="settings-section-card" style={{ marginBottom: '1.5rem', borderLeft: '4px solid #205493' }}>
+                  <div className="settings-section-header">
+                    <h2 className="settings-section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1c4482' }}>
+                      <Key size={20} color="#205493" /> Admin Login & Security Credentials
+                    </h2>
+                    <p className="settings-section-desc">
+                      Customize the administrator email address and password required to unlock this portal at /admin.
+                    </p>
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>Administrator Email</label>
+                      <input 
+                        type="email" 
+                        className="form-control" 
+                        value={securityEmail}
+                        onChange={(e) => setSecurityEmail(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Administrator Password</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={securityPassword}
+                        onChange={(e) => setSecurityPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <button 
+                      type="button" 
+                      className="srm-btn-primary" 
+                      style={{ fontSize: '0.88rem' }}
+                      onClick={handleSaveSecurityCredentials}
+                    >
+                      <Key size={15} /> Update Admin Credentials
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                  <button type="submit" className="srm-btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '1rem' }}>
+                    <Check size={18} /> Save All Changes
                   </button>
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <button type="submit" className="admin-btn admin-btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '1rem' }}>
-                  <Check size={18} /> Save All Club Changes
-                </button>
-              </div>
-
-            </form>
+              </form>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
+        </main>
       </div>
 
       {/* ================= MODAL: EVENT (ADD / EDIT) ================= */}
