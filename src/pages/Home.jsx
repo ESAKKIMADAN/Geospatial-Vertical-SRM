@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
-import { FeatureCard, StatCard, EventCard, ProjectCard } from '../components/Cards';
+import { FeatureCard, StatCard, EventCard } from '../components/Cards';
 import CTASection from '../components/CTASection';
-import ProjectModal from '../components/ProjectModal';
 import EventRegisterModal from '../components/EventRegisterModal';
 import { useData } from '../context/DataContext';
 
 const Home = () => {
-  const { clubInfo, upcomingEvents, projects } = useData();
-  const [selectedProject, setSelectedProject] = useState(null);
+  const { clubInfo, upcomingEvents } = useData();
   const [selectedRegisterEvent, setSelectedRegisterEvent] = useState(null);
 
   return (
@@ -64,17 +62,6 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="section bg-light">
-        <div className="container">
-          <SectionHeader title="Featured Current Project" />
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            {projects.length > 0 && (
-              <ProjectCard project={projects[0]} onClick={setSelectedProject} />
-            )}
-          </div>
-        </div>
-      </section>
-
       <section className="section text-center">
         <div className="container" style={{ maxWidth: '800px' }}>
           <SectionHeader title="Vision" />
@@ -90,10 +77,6 @@ const Home = () => {
         buttonLink="/projects"
         image="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
       />
-
-      {selectedProject && (
-        <ProjectModal project={selectedProject} onClose={() => setSelectedProject(null)} />
-      )}
 
       <EventRegisterModal 
         event={selectedRegisterEvent} 
