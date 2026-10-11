@@ -27,17 +27,19 @@ export const StatCard = ({ label, value }) => (
   </div>
 );
 
-export const EventCard = ({ event, type = 'upcoming', onRegister }) => {
-  const isLink = event.registrationType === 'link' && event.registrationLink;
-
+export const EventCard = ({ event, type = 'upcoming' }) => {
   return (
     <div className="card event-card">
-      <div className="card-image-wrapper">
+      <Link to={`/events/${event.id}`} className="card-image-wrapper" style={{ display: 'block', textDecoration: 'none' }}>
         <img src={event.image} alt={event.title} className="card-image" />
         {type === 'upcoming' && <div className="event-badge">Upcoming</div>}
-      </div>
+      </Link>
       <div className="card-content">
-        <h3 className="card-title">{event.title}</h3>
+        <h3 className="card-title">
+          <Link to={`/events/${event.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+            {event.title}
+          </Link>
+        </h3>
         <div className="event-details">
           {event.date && <span><Calendar size={16} /> {event.date}</span>}
           {event.time && <span><Clock size={16} /> {event.time}</span>}
@@ -46,29 +48,21 @@ export const EventCard = ({ event, type = 'upcoming', onRegister }) => {
         <p className="card-text">{event.description}</p>
         
         {type === 'upcoming' ? (
-          isLink ? (
-            <a 
-              href={event.registrationLink} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn btn-primary card-btn"
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', textDecoration: 'none' }}
-            >
-              <ExternalLink size={15} /> Register (External Portal)
-            </a>
-          ) : (
-            <button 
-              className="btn btn-primary card-btn" 
-              onClick={() => onRegister && onRegister(event)}
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
-            >
-              <Send size={15} /> Register Now
-            </button>
-          )
+          <Link 
+            to={`/events/${event.id}`} 
+            className="btn btn-primary card-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', textDecoration: 'none' }}
+          >
+            <Send size={15} /> Register Now
+          </Link>
         ) : (
-          <button className="btn btn-outline card-btn" disabled style={{ opacity: 0.7, cursor: 'default' }}>
-            Completed Activity
-          </button>
+          <Link 
+            to={`/events/${event.id}`} 
+            className="btn btn-outline card-btn"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', textDecoration: 'none', opacity: 0.85 }}
+          >
+            View Event Details
+          </Link>
         )}
       </div>
     </div>

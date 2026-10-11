@@ -924,6 +924,15 @@ const Admin = () => {
                       </button>
 
                       <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <a 
+                          href={`/events/${evt.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-icon-action"
+                          title="Open public registration page in new tab"
+                        >
+                          <ExternalLink size={15} />
+                        </a>
                         <button 
                           className="btn-icon-action" 
                           onClick={() => handleOpenEditEvent(evt, evt.isUpcoming)}

@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import EarthBackground from '../components/EarthBackground';
 import HeroSection from '../components/HeroSection';
 import SectionHeader from '../components/SectionHeader';
 import { FeatureCard, StatCard, EventCard } from '../components/Cards';
 import CTASection from '../components/CTASection';
-import EventRegisterModal from '../components/EventRegisterModal';
 import { useData } from '../context/DataContext';
 import '../styles/Home.css';
 
 const Home = () => {
   const { clubInfo, upcomingEvents } = useData();
-  const [selectedRegisterEvent, setSelectedRegisterEvent] = useState(null);
 
   return (
     <div className="page-transition home-page-container">
@@ -61,7 +59,6 @@ const Home = () => {
               <EventCard 
                 event={upcomingEvents[0]} 
                 type="upcoming" 
-                onRegister={setSelectedRegisterEvent} 
               />
             )}
           </div>
@@ -82,12 +79,6 @@ const Home = () => {
         buttonText="Explore Our Projects"
         buttonLink="/projects"
         image="https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-      />
-
-      <EventRegisterModal 
-        event={selectedRegisterEvent} 
-        isOpen={Boolean(selectedRegisterEvent)} 
-        onClose={() => setSelectedRegisterEvent(null)} 
       />
     </div>
   );

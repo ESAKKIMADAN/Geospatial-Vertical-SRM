@@ -7,6 +7,7 @@ import About from './pages/About';
 import Events from './pages/Events';
 import Projects from './pages/Projects';
 import Admin from './pages/Admin';
+import EventDetails from './pages/EventDetails';
 import { DataProvider } from './context/DataContext';
 import './index.css';
 
@@ -32,6 +33,8 @@ const Layout = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetails />} />
+          <Route path="/events/:id/register" element={<EventDetails />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
