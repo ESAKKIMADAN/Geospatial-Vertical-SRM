@@ -293,6 +293,27 @@ export const DataProvider = ({ children }) => {
         if (!facError && facData && facData.length > 0 && isMounted) {
           setFaculty(facData);
         }
+
+        // 6. Fetch site_settings / portfolio details
+        const { data: settsData, error: settsError } = await supabase
+          .from('site_settings')
+          .select('*')
+          .eq('id', 'default')
+          .maybeSingle();
+
+        if (!settsError && settsData && isMounted) {
+          setClubInfo(prev => ({
+            ...prev,
+            name: settsData.name || prev.name,
+            institution: settsData.institution || prev.institution,
+            tagline: settsData.tagline || prev.tagline,
+            heroDescription: settsData.heroDescription || prev.heroDescription,
+            aboutDescription: settsData.aboutDescription || prev.aboutDescription,
+            vision: settsData.vision || prev.vision,
+            mission: settsData.mission || prev.mission,
+            stats: settsData.stats ? (Array.isArray(settsData.stats) ? settsData.stats : JSON.parse(settsData.stats)) : prev.stats
+          }));
+        }
       } catch (err) {
         console.warn('Supabase fetch note:', err);
       }
@@ -300,8 +321,82 @@ export const DataProvider = ({ children }) => {
 
     fetchSupabaseData();
 
+    // Set up Realtime channel subscription for instant Admin <-> Portfolio sync
+    const realtimeChannel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'registrations' },
+        (payload) => {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            setRegistrations(prev => [payload.new, ...prev.filter(r => r.id !== payload.new.id)]);
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            setRegistrations(prev => prev.filter(r => r.id !== payload.old.id));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        (payload) => {
+          if (payload.eventType === 'INSERT' && payload.new) {
+            setMessages(prev => [payload.new, ...prev.filter(m => m.id !== payload.new.id)]);
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            setMessages(prev => prev.filter(m => m.id !== payload.old.id));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'events' },
+        () => {
+          supabase.from('events').select('*').order('created_at', { ascending: false })
+            .then(({ data }) => {
+              if (data && data.length > 0) {
+                setUpcomingEvents(data.filter(e => e.isUpcoming));
+                setPastEvents(data.filter(e => !e.isUpcoming));
+              }
+            });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        () => {
+          supabase.from('projects').select('*').order('created_at', { ascending: false })
+            .then(({ data }) => {
+              if (data && data.length > 0) setProjects(data);
+            });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'faculty' },
+        () => {
+          supabase.from('faculty').select('*').order('created_at', { ascending: false })
+            .then(({ data }) => {
+              if (data && data.length > 0) setFaculty(data);
+            });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'site_settings' },
+        (payload) => {
+          if (payload.new) {
+            setClubInfo(prev => ({
+              ...prev,
+              ...payload.new,
+              stats: payload.new.stats ? (Array.isArray(payload.new.stats) ? payload.new.stats : JSON.parse(payload.new.stats)) : prev.stats
+            }));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       isMounted = false;
+      supabase.removeChannel(realtimeChannel);
     };
   }, []);
 
@@ -621,17 +716,53 @@ export const DataProvider = ({ children }) => {
 
   // --- CLUB INFO & STATS ACTIONS ---
   const updateClubInfo = (updatedFields) => {
-    setClubInfo(prev => ({
-      ...prev,
-      ...updatedFields
-    }));
+    setClubInfo(prev => {
+      const merged = {
+        ...prev,
+        ...updatedFields
+      };
+
+      // Sync to Supabase site_settings table
+      supabase.from('site_settings').upsert({
+        id: 'default',
+        name: merged.name,
+        institution: merged.institution,
+        tagline: merged.tagline,
+        heroDescription: merged.heroDescription,
+        aboutDescription: merged.aboutDescription,
+        vision: merged.vision,
+        mission: merged.mission,
+        stats: merged.stats,
+        updated_at: new Date().toISOString()
+      }).then(() => {}).catch(err => console.warn('Supabase site_settings update err:', err));
+
+      return merged;
+    });
   };
 
   const updateStats = (statsArray) => {
-    setClubInfo(prev => ({
-      ...prev,
-      stats: statsArray
-    }));
+    setClubInfo(prev => {
+      const merged = {
+        ...prev,
+        stats: statsArray
+      };
+
+      // Sync to Supabase site_settings table
+      supabase.from('site_settings').upsert({
+        id: 'default',
+        name: merged.name,
+        institution: merged.institution,
+        tagline: merged.tagline,
+        heroDescription: merged.heroDescription,
+        aboutDescription: merged.aboutDescription,
+        vision: merged.vision,
+        mission: merged.mission,
+        stats: statsArray,
+        updated_at: new Date().toISOString()
+      }).then(() => {}).catch(err => console.warn('Supabase site_settings stats err:', err));
+
+      return merged;
+    });
   };
 
   // --- RESET & EXPORT / IMPORT ---
