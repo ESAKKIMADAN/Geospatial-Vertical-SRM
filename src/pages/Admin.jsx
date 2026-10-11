@@ -846,12 +846,12 @@ const Admin = () => {
                       )}
                       {evt.time && (
                         <div className="meta-row">
-                          <Clock size={15} color="#20c997" /> <span>{evt.time}</span>
+                          <Clock size={15} color="#205493" /> <span>{evt.time}</span>
                         </div>
                       )}
                       {evt.venue && (
                         <div className="meta-row">
-                          <MapPin size={15} color="#ef4444" /> <span>{evt.venue}</span>
+                          <MapPin size={15} color="#205493" /> <span>{evt.venue}</span>
                         </div>
                       )}
                     </div>
@@ -878,13 +878,13 @@ const Admin = () => {
                             fontWeight: 700,
                             padding: '0.15rem 0.5rem',
                             borderRadius: '10px',
-                            background: evt.registrationType === 'link' ? '#eff6ff' : '#ecfdf5',
-                            color: evt.registrationType === 'link' ? '#1d4ed8' : '#047857',
-                            border: `1px solid ${evt.registrationType === 'link' ? '#bfdbfe' : '#a7f3d0'}`
+                            background: '#eff6ff',
+                            color: '#1c4482',
+                            border: '1px solid #bfdbfe'
                           }}>
                             {evt.registrationType === 'link' ? 'External Link' : 'On-Site Form'}
                           </span>
-                          <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.8rem', color: '#1c4482', fontWeight: 600 }}>
                             {registrations.filter(r => r.eventId === evt.id).length} Registered
                           </span>
                         </div>
@@ -894,7 +894,7 @@ const Admin = () => {
                             <button
                               type="button"
                               onClick={() => exportRegistrationsExcel(evt.id)}
-                              className="srm-btn-excel"
+                              className="srm-btn-primary"
                               style={{ padding: '0.25rem 0.55rem', fontSize: '0.75rem' }}
                               title="Download registered students Excel sheet (.xlsx) for this event"
                             >
@@ -1041,7 +1041,7 @@ const Admin = () => {
                   <span> for event: <em>{upcomingEvents.find(e => e.id === selectedRegEventFilter)?.title || pastEvents.find(e => e.id === selectedRegEventFilter)?.title}</em></span>
                 )}
               </div>
-              <div style={{ fontSize: '0.82rem', color: '#059669', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.82rem', color: '#1c4482', fontWeight: 600 }}>
                 ✓ Real-time database synced with SRMIST email verification
               </div>
             </div>
@@ -1201,7 +1201,7 @@ const Admin = () => {
                         <span><strong>Mentor:</strong> {proj.facultyMentor}</span>
                       </div>
                       <div className="meta-row">
-                        <Users size={15} color="#059669" />
+                        <Users size={15} color="#205493" />
                         <span><strong>Team:</strong> {proj.studentTeam}</span>
                       </div>
                     </div>
@@ -1304,13 +1304,13 @@ const Admin = () => {
                       )}
                       {fac.domain && (
                         <div className="meta-row">
-                          <Globe size={15} color="#059669" />
+                          <Globe size={15} color="#205493" />
                           <span><strong>Domain:</strong> {fac.domain}</span>
                         </div>
                       )}
                       {fac.office && (
                         <div className="meta-row">
-                          <MapPin size={15} color="#64748b" />
+                          <MapPin size={15} color="#205493" />
                           <span><strong>Office:</strong> {fac.office}</span>
                         </div>
                       )}
@@ -1447,7 +1447,7 @@ const Admin = () => {
                             fontSize: '0.72rem', 
                             fontWeight: 800, 
                             color: '#ffffff', 
-                            background: '#d9534f', 
+                            background: '#205493', 
                             padding: '0.2rem 0.55rem', 
                             borderRadius: '10px' 
                           }}>
@@ -1754,7 +1754,7 @@ const Admin = () => {
                 {/* Registration Mode Settings */}
                 <div className="form-group" style={{ background: '#f8fafc', padding: '1.1rem', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
                   <label style={{ fontWeight: 700, color: '#0a192f', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                    <Users size={16} color="#059669" /> Registration Method (Upcoming Events)
+                    <Users size={16} color="#205493" /> Registration Method (Upcoming Events)
                   </label>
                   <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '0.75rem', lineHeight: '1.4' }}>
                     Choose whether students register via an on-site custom form (real-time Excel export) or an external Google Form / portal link.
