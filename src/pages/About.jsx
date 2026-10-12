@@ -128,16 +128,6 @@ const About = () => {
         </div>
       </section>
 
-      <section className="section">
-        <div className="container" style={{ maxWidth: '800px' }}>
-          <SectionHeader title="Objectives" />
-          <ul style={{ listStyleType: 'disc', paddingLeft: '2rem', fontSize: '1.1rem', color: 'var(--text-main)' }}>
-            {clubInfo.objectives?.map((obj, index) => (
-              <li key={index} style={{ marginBottom: '1rem' }}>{obj}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
     </div>
   );
 };
